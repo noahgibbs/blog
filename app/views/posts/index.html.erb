@@ -1,5 +1,5 @@
 <div class="content">
-<h1>Listing posts, <%= @page > 1 ? "Page #{@page}" : "" %> </h1>
+<h1>Listing posts<%= @page > 1 ? ", Page #{@page}" : "" %> </h1>
 
 <% @commentlink = true %>
 <%= render :partial => 'post', :collection => @posts %>

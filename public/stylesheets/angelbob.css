@@ -29,6 +29,14 @@ a:hover { color: #fff; background-color:#000; }
   padding: 10px;
 }
 
+.createdTime {
+  color: #A0A0A0;
+}
+
+.updatedTime {
+  color: #A0A0A0;
+}
+
 .post {
 
 }

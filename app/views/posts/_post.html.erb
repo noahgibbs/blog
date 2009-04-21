@@ -1,5 +1,8 @@
 <% div_for post do %>
   <h2> <%= link_to_unless_current h(post.title), :action => "show", :id => post %></h2>
+  <p> <span class="createdTime"> Created: <%= post.created_at %> </span> /
+      <span class="updatedTime"> Updated: <%= post.updated_at %> </span> </p>
+
   <%= simple_format post.body %>
   <%= @commentlink ? link_to("View Comments", :action => "show",
                                                :id => post,
