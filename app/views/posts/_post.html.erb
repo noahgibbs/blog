@@ -1,0 +1,7 @@
+<% div_for post do %>
+  <h2> <%= link_to_unless_current h(post.title), :action => "show", :id => post %></h2>
+  <%= simple_format post.body %>
+  <%= @commentlink ? link_to("View Comments", :action => "show",
+                                               :id => post,
+                                        :anchor => "disqus_thread") : "" %>
+<% end %>

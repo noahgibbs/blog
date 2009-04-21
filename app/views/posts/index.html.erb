@@ -1,0 +1,28 @@
+<div class="content">
+<h1>Listing posts, <%= @page > 1 ? "Page #{@page}" : "" %> </h1>
+
+<% @commentlink = true %>
+<%= render :partial => 'post', :collection => @posts %>
+
+<div id="pageLinks">
+  <%= page_links @page %>
+</div>
+<%= link_to 'New post', new_post_path %>
+
+<!-- Disqus hook -->
+<script type="text/javascript">
+//<![CDATA[
+(function() {
+		var links = document.getElementsByTagName('a');
+		var query = '?';
+		for(var i = 0; i < links.length; i++) {
+			if(links[i].href.indexOf('#disqus_thread') >= 0) {
+				query += 'url' + i + '=' + encodeURIComponent(links[i].href) + '&';
+			}
+		}
+		document.write('<script charset="utf-8" type="text/javascript" src="http://disqus.com/forums/angelbobsblog/get_num_replies.js' + query + '"></' + 'script>');
+	})();
+//]]>
+</script>
+
+</div>
