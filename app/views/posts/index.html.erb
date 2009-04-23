@@ -1,5 +1,5 @@
 <div class="content">
-<h1>Listing posts<%= @page > 1 ? ", Page #{@page}" : "" %> </h1>
+<%= @page > 1 ? "<h1>Page #{@page}</h1>" : "" %>
 
 <% @commentlink = true %>
 <%= render :partial => 'post', :collection => @posts %>
@@ -8,6 +8,8 @@
   <%= page_links @page %>
 </div>
 <%= link_to 'New post', new_post_path %>
+
+</div> <!-- Content div -->
 
 <!-- Disqus hook -->
 <script type="text/javascript">
@@ -24,5 +26,3 @@
 	})();
 //]]>
 </script>
-
-</div>
