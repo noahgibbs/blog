@@ -36,8 +36,11 @@ class RemapController < ApplicationController
       37 => 42
     };
 
-    new_id = remap_pages[pagenum]
-
-    redirect_to :controller => 'posts', :action => 'show', :id => new_id
+    if(params[:p])
+      new_id = remap_pages[pagenum]
+      redirect_to :controller => 'posts', :action => 'show', :id => new_id
+    else
+      redirect_to :controller => 'posts', :action => 'index'
+    end
   end
 end
