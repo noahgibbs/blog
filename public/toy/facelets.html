@@ -1,0 +1,515 @@
+<html>
+<head>
+<title>Facelets 0.0.4</title>
+<script type="text/javascript" src="excanvas.js"></script>
+<script type="text/javascript" src="prototype-1.6.0.2.js"></script>
+<script type="text/javascript">
+window.onload = function() {
+    initFacelets();
+    setInterval(runTick, 300);
+    initCheckboxes();
+}
+
+// Facelet class
+
+function Facelet_default_face_params(face_params) {
+    var props = ["inside_brow_height", "outside_brow_height", "mid_brow_height",
+                 "inside_eye_height", "outside_eye_height", "mid_eye_height",
+                 "eye_linewidth", "brow_linewidth",
+		 "mouth_linewidth", "mouth_open_height",
+		 "smile_height_l", "smile_height_r",
+		 "sneer_height_l", "sneer_height_r",
+		 "face_center_r", "face_center_g", "face_center_b",
+		 "face_center_a",
+                 "body_shape", "body_linewidth", "body_height", "face_offset",
+                 "body_outline_r", "body_outline_g", "body_outline_b",
+		 "body_outline_a", "center_x", "center_y"]
+    var vals = [ 0, 0, 0, 0, 0, 0, 2, 2, 3, 8, 0, 0, 2, 2,
+                 200, 120, 120, 255,
+                 "circle", 6, 80, 10, 200, 120, 120, 255, 200, 200 ];
+
+    var idx;
+    for (idx in props) {
+        if(face_params[props[idx]] == undefined) { face_params[props[idx]] = vals[idx] }
+    }
+}
+
+Facelet.prototype.default_face_params = Facelet_default_face_params;
+
+function Facelet(name, face_params) {
+    this.name = name;
+    this.face_params = face_params;
+    Facelet_default_face_params(this.face_params);
+}
+
+// Copies a facelet f into the current facelet
+function Facelet_copy_from(f) {
+    this.name = f.name + ""
+    this.face_params = Object.clone(f.face_params);
+}
+
+Facelet.prototype.copy_from = Facelet_copy_from;
+
+function Facelet_clone() {
+    var cloned = new Facelet(this.name, {});
+    cloned.copy_from(this);
+    return cloned;
+}
+
+Facelet.prototype.clone = Facelet_clone;
+
+function Facelet_addfrom(fp, coeff) {
+    if(arguments.length < 2)
+        coeff = 1.0;
+
+    coeff += 0.0;  // Make sure it's a floating point number
+
+    if(coeff.constructor == Facelet) {
+        fp = fp.face_params;
+    }
+
+    var prop;
+    for(prop in fp) {
+        if(this.face_params[prop] != undefined
+           && Object.isNumber(this.face_params[prop])) {
+	     this.face_params[prop] += fp[prop] * coeff;
+        }
+    }
+}
+
+Facelet.prototype.addfrom = Facelet_addfrom;
+
+function __Facelet_drawbody(context, shape, height, cx, cy) {
+  switch(shape) {
+    case "square":
+      context.moveTo(cx - height / 2.0, cy - height / 2.0);
+      context.lineTo(cx - height / 2.0, cy + height / 2.0);
+      context.lineTo(cx + height / 2.0, cy + height / 2.0);
+      context.lineTo(cx + height / 2.0, cy - height / 2.0);
+      context.lineTo(cx - height / 2.0, cy - height / 2.0);
+      break;
+    case "circle":
+    default:
+      context.arc(cx, cy, height, 0, 2*Math.PI, false);
+      break;
+  }
+}
+
+function Facelet_draw() {
+    var context = $("arena").getContext("2d");
+
+    var fp = this.face_params;
+    var cx = fp.center_x;
+    var cy = fp.center_y;
+
+    context.save();
+
+    var body_outline_color = "rgba(" + parseInt(fp.body_outline_r, 10) + ","
+                          + parseInt(fp.body_outline_g, 10) + ","
+			  + parseInt(fp.body_outline_b, 10) + ","
+			  + parseInt(fp.body_outline_a, 10) + ")";
+
+    context.beginPath();
+    context.fillStyle = body_outline_color;
+    __Facelet_drawbody(context, fp.body_shape, fp.body_height, cx, cy);
+    context.closePath();
+    context.fill();
+
+    context.beginPath();
+    context.lineWidth = fp.body_linewidth;
+    __Facelet_drawbody(context, fp.body_shape, fp.body_height, cx, cy);
+    context.closePath();
+    context.stroke();
+
+    var face_radius = fp.body_height * 2.0 / 3.0;
+    var face_center = (cy - fp.body_height + fp.face_offset +
+        face_radius);
+    var eye_height = face_center - face_radius / 10.0;;
+    var brow_height = eye_height - 15;
+    var mouth_height = face_center + face_radius / 3.0;
+    var eyes_apart = face_radius / 2.0;
+    var eye_width = face_radius / 6.0;
+    var brow_width = face_radius / 4.0;
+
+    // Face background
+
+    var facefill = context.createRadialGradient(cx, face_center, 1.0,
+                                                cx, face_center,
+						face_radius);
+    var face_center_color = "rgba(" + parseInt(fp.face_center_r, 10) + ","
+                          + parseInt(fp.face_center_g, 10) + ","
+			  + parseInt(fp.face_center_b, 10) + ","
+			  + parseInt(fp.face_center_a, 10) + ")";
+    facefill.addColorStop(0, face_center_color);
+    facefill.addColorStop(1.0, body_outline_color);
+
+    context.fillStyle = facefill;
+
+    context.beginPath();
+    context.arc(cx, face_center, face_radius, 0, 2*Math.PI, false);
+    context.closePath();
+    context.fill();
+
+    // Eyes
+
+    var eye_center_1 = cx - eyes_apart / 2.0;
+    var eye_center_2 = cx + eyes_apart / 2.0;
+
+    context.lineWidth = fp["eye_linewidth"];
+    context.fillStyle = "black";
+
+    context.beginPath();
+    context.moveTo(eye_center_1 - eye_width / 2.0,
+        eye_height - fp["outside_eye_height"]);
+    context.lineTo(eye_center_1, eye_height - fp["mid_eye_height"]);
+    context.lineTo(eye_center_1 + eye_width / 2.0,
+        eye_height - fp["inside_eye_height"]);
+    context.stroke();
+
+    context.beginPath();
+    context.moveTo(eye_center_2 + eye_width / 2.0,
+        eye_height - fp["outside_eye_height"]);
+    context.lineTo(eye_center_2, eye_height - fp["mid_eye_height"]);
+    context.lineTo(eye_center_2 - eye_width / 2.0,
+        eye_height - fp["inside_eye_height"]);
+    context.stroke();
+
+    // Eyebrows
+
+    context.lineWidth = fp["brow_linewidth"];
+    context.lineJoin = "round";
+
+    context.beginPath();
+    context.moveTo(eye_center_1 - brow_width / 2.0,
+        brow_height - fp["outside_brow_height"]);
+    context.lineTo(eye_center_1, brow_height - fp["mid_brow_height"]);
+    context.lineTo(eye_center_1 + brow_width / 2.0,
+        brow_height - fp["inside_brow_height"]);
+    //context.closePath();
+    context.stroke();
+
+    context.beginPath();
+    context.moveTo(eye_center_2 + brow_width / 2.0,
+        brow_height - fp["outside_brow_height"]);
+    context.lineTo(eye_center_2, brow_height - fp["mid_brow_height"]);
+    context.lineTo(eye_center_2 - brow_width / 2.0,
+        brow_height - fp["inside_brow_height"]);
+    //context.closePath();
+    context.stroke();
+
+    // Mouth
+
+    var mouth_width = face_radius / 1.5;
+    var mouth_center_width = mouth_width * 1.0 / 3.0;
+
+    context.lineWidth = fp["mouth_linewidth"];
+    context.lineJoin = "round";  // alt "bevel", "miter"
+
+    context.beginPath();
+    // Upper lip, smile and sneer
+    context.moveTo(cx - mouth_width / 2.0,
+                   mouth_height - fp.smile_height_l);
+    context.lineTo(cx - mouth_center_width / 2.0,
+                   mouth_height - fp.sneer_height_l);
+    context.lineTo(cx + mouth_center_width / 2.0,
+                   mouth_height - fp.sneer_height_r);
+    context.lineTo(cx + mouth_width / 2.0,
+                   mouth_height - fp.smile_height_r);
+
+    // Lower lip
+
+    // TODO: try this nonuniformly scaled so that the radius of
+    // the arc is "mouth_width / 2.0" horizontally, but only
+    // "mouth_height" vertically, or a little less to account for
+    // smile and sneer params.
+
+    //context.lineTo(cx + mouth_width / 2.0, mouth_height);
+    //context.arc(cx, mouth_height, mouth_width / 2.0, 0, Math.PI, false);
+    //context.lineTo(cx - mouth_width / 2.0, mouth_height - fp.smile_height_l);
+
+    context.lineTo(cx, mouth_height + fp["mouth_open_height"]);
+    context.lineTo(cx - mouth_width / 2.0, mouth_height - fp.smile_height_l);
+
+    context.closePath();
+    context.stroke();
+
+    context.restore();
+}
+
+Facelet.prototype.draw = Facelet_draw;
+
+Facelet.emotions = {
+    "scared": {
+        "inside_brow_height":9,
+	"mid_brow_height":6,
+        "outside_brow_height":3,
+	"inside_eye_height":4,
+	"mid_eye_height":4,
+	"outside_eye_height":4,
+	"eye_linewidth":2,
+	"mouth_linewidth":-1,
+	"mouth_open_height":-4,
+	"face_center_r":70,  // face will pale when scared
+	"face_center_g":70,
+	"face_center_b":70,
+    },
+    "happy": {
+        "inside_brow_height":2,
+	"mid_brow_height":2,
+	"outside_brow_height":2,
+	"inside_eye_height":2,
+	"mid_eye_height":1,
+	"eye_linewidth":1,
+	"mouth_open_height":4,
+        "smile_height_l":3,
+        "smile_height_r":3,
+    },
+    "annoyed": {
+        "inside_brow_height":-2,
+	"mid_brow_height":0,
+	"outside_brow_height":0,
+	"smile_height_l":-4,
+	"smile_height_r":-4,
+	"sneer_height_l":-2,
+	"sneer_height_r":-2,
+	"mouth_open_height":-4,
+    },
+    "surprised": {
+        "inside_brow_height":4,
+	"mid_brow_height":3,
+	"outside_brow_height":2,
+	"eye_linewidth":2,
+	"mouth_open_height":-1,
+    },
+    "mad": {
+        "inside_brow_height":-4,
+	"mid_brow_height":0,
+	"outside_brow_height":2,
+	"inside_eye_height":-2,
+	"mid_eye_height":-1,
+	"outside_eye_height":0,
+	"face_center_r":70,
+	"smile_height_r":-5,
+	"smile_height_l":-5,
+	"sneer_height_r":2,
+	"sneer_height_l":2,
+	"mouth_open_height":2,
+    },
+    "dismayed": {
+        "inside_brow_height":2,
+	"mid_brow_height":0,
+	"outside_brow_height":-2,
+	"inside_eye_height":1,
+	"mid_eye_height":0,
+	"outside_eye_height":-1,
+	"face_offset":6,
+	"smile_height_l":-5,
+	"smile_height_r":-5,
+	"sneer_height_l":-3,
+	"sneer_height_r":-3,
+        "face_center_r":-40,
+        "face_center_b":40,
+    },
+    "arrogant": {
+        "inside_brow_height":2,
+	"sneer_height_l":3,
+	"face_offset":-4,
+    },
+};
+
+emoMap = {
+    "ar": "arrogant",
+    "ha": "happy",
+    "ma": "mad",
+    "sc": "scared",
+    "su": "surprised",
+    "di": "dismayed",
+    "an": "annoyed",
+};
+
+// Facelet setup
+
+arenaChanged = false;
+changedCounter = 0;
+completedCounter = 0;
+upDownCtr = 0;
+
+// The Facelet characters
+blankie = undefined;
+
+function initFacelets() {
+    //myfacelet = new Facelet("bobo", {eye_linewidth: 3, sneer_height_l:3, sneer_height_r:3, smile_height_l:5, smile_height_r:5, body_linewidth:8});
+    blankie = new Facelet("blankie", {center_x:100, center_y:100});
+
+    arenaChanged = true;
+    //drawFacelets(blankie);
+}
+
+function arraysEqual(a, b) {
+    var len = a.length();
+
+    if(b.length() != len)
+        return false;
+
+    for(var idx = 0; idx < len; idx++) {
+        if(a[idx] != b[idx]) return false;
+    }
+    return true;
+}
+
+function runTick() {
+    upDownCtr++;
+    if(upDownCtr > 19) upDownCtr = 0;
+
+    var howEmo = (upDownCtr > 10) ? 1.0 - 0.1 * (upDownCtr - 10) :
+                    upDownCtr * 0.1;
+
+    var ar = getEmoArray();
+    var len = ar.length;
+    var total = 0.0;
+
+    var emoFace = blankie.clone();
+    for(var idx = 0; idx < len; idx++) {
+        if(ar[idx] > 0.0) {
+            emoFace.addfrom(Facelet.emotions[emoMap[emotionFields[idx]]],
+                            ar[idx] * howEmo);
+	    total += ar[idx];
+        }
+    }
+    //emoFace.addfrom(Facelet.emotions.arrogant, howEmo);
+    $("total").innerHTML = "<p>Total counted: " + total + "</p>";
+
+    arenaChanged = true;
+    drawFacelets(emoFace);
+}
+
+function drawFacelets() {
+    if(arenaChanged) {
+        changedCounter++;
+        $("changedpara").innerHTML = changedCounter + " frames started.";
+
+	for(i = 0; i < arguments.length; i++) {
+            arguments[i].draw();
+        }
+        arenaChanged = false;
+
+        completedCounter++;
+        $("completedpara").innerHTML = completedCounter + " frames completed.";
+    }
+}
+</script>
+</head>
+<body>
+<canvas id="arena" width="200" height="200" style="border: 1px solid black"></canvas>
+
+<script type="text/javascript">
+emotionFields = ["ha", "sc", "su", "an", "di", "ma", "ar"];
+
+function initCheckboxes() {
+    var len = emotionFields.length;
+    var idx;
+
+    for(idx = 0; idx < len; idx++) {
+        $("r" + emotionFields[idx]).checked = false;
+	$("t" + emotionFields[idx]).value = "1.0";
+	$("d" + emotionFields[idx]).value = "1";
+    }
+    $("rha").checked = true;
+    fieldsEnabled();
+}
+
+function fieldsEnabled() {
+    var len = emotionFields.length;
+    var idx;
+
+    for(idx = 0; idx < len; idx++) {
+        var t_attr = $("t" + emotionFields[idx]);
+        var r_attr = $("r" + emotionFields[idx]);
+	if(r_attr.checked) {
+	    t_attr.removeAttribute("disabled");
+	} else {
+	    t_attr.setAttribute("disabled", "true");
+	}
+    }
+}
+
+function cbClick() {
+    fieldsEnabled();
+}
+
+function getEmoArray() {
+    var len = emotionFields.length;
+    var ret = Array(len);
+
+    var log = "";
+
+    for(var idx = 0; idx < len; idx++) {
+        var t_attr = $("t" + emotionFields[idx]);
+	var r_attr = $("r" + emotionFields[idx]);
+	var d_attr = $("d" + emotionFields[idx]);
+
+	if(r_attr.checked) {
+	    var emo = parseFloat(t_attr.value);
+	    if(!isNaN(emo)) {
+	        d_attr.value = emo;
+	        ret[idx] = emo;
+            } else {
+	        d_attr.value = "(Huh?)";
+		ret[idx] = 0.0;
+	    }
+	} else {
+	    ret[idx] = 0.0;
+	}
+    }
+
+    return ret;
+}
+</script>
+
+<p id="total">Total counted: 1</p>
+
+<form>
+<input type="checkbox" name="r" id="rha" onClick="cbClick();">
+    Happy <input type="text" size="6" id="tha">
+    <input type="text" size="6" id="dha" disabled="YES"> <br />
+<input type="checkbox" name="r" id="rsc" onClick="cbClick();">
+    Scared <input type="text" size="6" id="tsc">
+    <input type="text" size="6" id="dsc" disabled="YES"> <br />
+<input type="checkbox" name="r" id="rsu" onClick="cbClick();">
+    Surprised <input type="text" size="6" id="tsu">
+    <input type="text" size="6" id="dsu" disabled="YES"> <br />
+<input type="checkbox" name="r" id="ran" onClick="cbClick();">
+    Annoyed <input type="text" size="6" id="tan">
+    <input type="text" size="6" id="dan" disabled="YES"> <br />
+<input type="checkbox" name="r" id="rdi" onClick="cbClick();">
+    Dismayed <input type="text" size="6" id="tdi">
+    <input type="text" size="6" id="ddi" disabled="YES"> <br />
+<input type="checkbox" name="r" id="rma" onClick="cbClick();">
+    Mad <input type="text" size="6" id="tma">
+    <input type="text" size="6" id="dma" disabled="YES"> <br />
+<input type="checkbox" name="r" id="rar" onClick="cbClick();">
+    Arrogant <input type="text" size="6" id="tar">
+    <input type="text" size="6" id="dar" disabled="YES"> <br />
+</form>
+
+<p>
+    Select which emotions the emo-face will express.  If you pick a
+    total of emotions higher than about 2, you can probably get the
+    mouth and eyes to do things real mouths and eyes should never do.
+    You may decide whether this is a fun idea &#9786;
+</p>
+
+<p id="changedpara">
+  Test text after canvas, shouldn't be visible for long...
+</p>
+
+<p id="completedpara">
+  Test text (2) after canvas, shouldn't be visible for long...
+</p>
+
+<p id="debug_log">
+  Debug
+</p>
+
+</body>
+</html>
