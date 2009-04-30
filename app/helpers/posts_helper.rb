@@ -1,5 +1,5 @@
 module PostsHelper
-  PostsPerPage = 4
+  PostsPerPage = 6
 
   def page_links(pagenum)
     num_posts = Post.count
