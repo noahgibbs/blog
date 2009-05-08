@@ -3,3 +3,7 @@ This is the code for http://blog.angelbob.com as it develops.
 It's originally based on the Rails "fifteen minute blog" demonstration,
 Rails 2.3 version.  It's been modified to impersonate bits of WordPress to
 replace an older blog, and to generally serve up extra things I use.
+
+This code is configured, Heroku-style, to keep its HTTP password in an
+environment variable.  The variable is creatively named "BLOG_PASSWORD".
+I set it in the same script that runs the blog mongrel on machine startup.
