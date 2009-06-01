@@ -29,6 +29,14 @@ a:hover { color: #fff; background-color:#000; }
   padding: 10px;
 }
 
+.post_footer {
+  background-color: #C0C0FF;
+}
+
+.tags {
+  background-color: #D0D0FF;
+}
+
 .createdTime {
   color: #A0A0A0;
 }

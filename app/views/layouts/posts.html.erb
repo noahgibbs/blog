@@ -10,17 +10,21 @@
 </head>
 <body>
 
-<p id="flashNotice"><%= flash[:notice] %></p>
-
 <div id="leftnavbar">
   <a href="about.html">
   <img src="/images/myface.jpg" width="100"> <br /> About Me</a>
 
+  <p>
+  <%= link_to 'Front Page', posts_path %>
+  </p>
+
+  <p>
+  <%= link_to 'New Post', new_post_path %>
+  </p>
+
   <hr />
 
-  <a href="http://static.angelbob.com/portfolio">Online Portfolio</a> <br />
-  <a href="http://www.angelbob.com/resume">Resume</a> <br />
-  <a href="http://static.angelbob.com">Old Home Page</a>
+  <p> Tags: <%= html_for_tag_list %> </p>
 
   <hr />
 
@@ -31,11 +35,17 @@
   <hr />
 
   <p>
-  <%= link_to 'List All Posts', posts_path %>
+    <a href="http://static.angelbob.com/portfolio">Online Portfolio</a>
   </p>
 
   <p>
-  <%= link_to 'New Post', new_post_path %>
+    <a href="http://www.angelbob.com/resume">Resume</a> <br />
+  </p>
+
+  <p> <a href="http://www.linkedin.com/in/noahgibbs">Profile on LinkedIn</a> </p>
+
+  <p>
+  <a href="http://www.workingwithrails.com/recommendation/new/person/13240-noah-gibbs"><img alt="Recommend Me" src="http://workingwithrails.com/images/tools/compact-small-button.jpg" /></a>
   </p>
 
   <hr />
@@ -54,6 +64,8 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 </script>
 
 </div>
+
+<p id="flashNotice"><%= flash[:notice] %></p>
 
 <%= yield %>
 

@@ -4,7 +4,12 @@
       <span class="updatedTime"> Updated: <%= post.updated_at %> </span> </p>
 
   <%= simple_format post.body %>
+
+  <div class="post_footer">
   <%= @commentlink ? link_to("View Comments", :action => "show",
                                                :id => post,
                                         :anchor => "disqus_thread") : "" %>
+  <%= html_for_tag_div(post) %>
+  </div>
+
 <% end %>

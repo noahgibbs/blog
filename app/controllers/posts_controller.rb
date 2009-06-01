@@ -5,9 +5,16 @@ class PostsController < ApplicationController
   # GET /posts.xml
   def index
     @page = (params[:page] || "1").to_i
-    @posts = Post.all(:order => 'created_at DESC, id DESC',
-    	     	      :offset => (@page - 1) * PostsHelper::PostsPerPage,
-    	     	      :limit => PostsHelper::PostsPerPage, :readonly => true)
+    @tag = params[:tag]
+
+    options = { :order => 'posts.created_at DESC, posts.id DESC',
+    	     	:offset => (@page - 1) * PostsHelper::PostsPerPage,
+    	     	:limit => PostsHelper::PostsPerPage, :readonly => true }
+    if(@tag)
+      @posts = Post.tagged_with(@tag, options)
+    else
+      @posts = Post.all(options)
+    end
 
     respond_to do |format|
       format.html # index.html.erb

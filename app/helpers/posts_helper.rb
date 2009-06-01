@@ -29,4 +29,19 @@ module PostsHelper
     output
   end
 
+  def html_for_tag_list
+    tags = Tag.find(:all)
+
+    tag_html = tags.map { |tag|
+      link_to(tag.name, :controller => 'posts', :action => 'index', :id => 1,
+      			:tag => tag.name)
+    }.join(", ")
+
+    "<div class=\"tags\">\n  #{tag_html}\n  </div>"
+  end
+
+  def html_for_tag_div(post)
+    "<div class=\"tags\">\n  #{post.tag_list}\n  </div>"
+  end
+
 end
