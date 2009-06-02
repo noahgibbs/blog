@@ -5,7 +5,8 @@ atom_feed do |feed|
   @posts.each do |post|
     feed.entry(post) do |entry|
       entry.title(post.title)
-      entry.content(post.body, :type => 'html')
+      entry.content("#{post.body}\n<p>Tags: #{post.tag_list}</p>",
+                    :type => 'html')
       entry.author { |author| author.name("Noah Gibbs") }
     end
   end
