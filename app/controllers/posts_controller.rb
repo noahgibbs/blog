@@ -53,7 +53,10 @@ class PostsController < ApplicationController
   # POST /posts
   # POST /posts.xml
   def create
+    tags = params[:tag_list]
+    params[:tag_list] = nil
     @post = Post.new(params[:post])
+    @post.tag_with tags if tags
 
     respond_to do |format|
       if @post.save
@@ -70,7 +73,10 @@ class PostsController < ApplicationController
   # PUT /posts/1
   # PUT /posts/1.xml
   def update
+    tags = params[:tag_list]
+    params[:tag_list] = nil
     @post = Post.find(params[:id])
+    @post.tag_with tags if tags
 
     respond_to do |format|
       if @post.update_attributes(params[:post])
