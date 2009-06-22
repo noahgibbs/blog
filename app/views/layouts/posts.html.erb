@@ -4,6 +4,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
   <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+  <meta name="description" content="A blog about programming in Ruby and Rails.  This post: <%= @title ? @title : "general content" %>" />
+  <meta name="keywords" content="<%= @keywords ? @keywords.join(",") : ""%>" />
   <title><%= @title ? "#{@title} - " : "" %>Angelbob on Programming</title>
   <%= stylesheet_link_tag 'angelbob' %>
   <%= auto_discovery_link_tag :atom, posts_path(:atom) %>

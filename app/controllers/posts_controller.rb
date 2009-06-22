@@ -6,6 +6,7 @@ class PostsController < ApplicationController
   def index
     @page = (params[:page] || "1").to_i
     @tag = params[:tag]
+    @keywords = Tag.find(:all).map { |t| t.name }
 
     options = { :order => 'posts.created_at DESC, posts.id DESC',
     	     	:offset => (@page - 1) * PostsHelper::PostsPerPage,
@@ -28,6 +29,7 @@ class PostsController < ApplicationController
   def show
     @post = Post.find(params[:id])
     @title = @post.title
+    @keywords = @post.tag_list.split
 
     respond_to do |format|
       format.html # show.html.erb
