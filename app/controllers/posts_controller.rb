@@ -9,13 +9,11 @@ class PostsController < ApplicationController
     @keywords = Tag.find(:all).map { |t| t.name }
 
     options = { :order => 'posts.created_at DESC, posts.id DESC',
-    	     	:offset => (@page - 1) * PostsHelper::PostsPerPage,
-    	     	:limit => PostsHelper::PostsPerPage, :readonly => true }
-    if(@tag)
-      @posts = Post.tagged_with(@tag, options)
-    else
-      @posts = Post.all(options)
-    end
+    	     	:page => @page, :readonly => true,
+		:tag => @tag, :finder => :tag_finder,
+		:total_entries => Post.tag_counter(@tag),
+		:per_page => PostsHelper::PostsPerPage }
+    @posts = Post.paginate(options)
 
     respond_to do |format|
       format.html # index.html.erb
