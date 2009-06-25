@@ -58,13 +58,45 @@ a:hover { color: #fff; background-color:#000; }
   margin: 10px;
 }
 
-#pageLinks {
-  background-color: #B0FFB0;
-  font-size: 200%;
-  padding: 20px;
-  margin: 10px;
+/* will_paginate CSS */
+
+DIV.pagination {
+  background-color: #F0F8FF;
+  color: #0080D0;
+  font-size: 150%;
+  padding: 5%;
+  margin-top: 30px;
 }
 
+DIV.pagination a {
+  color: #0080E0;
+}
+
+DIV.pagination a:visited {
+  color: #70A070;
+}
+
+DIV.pagination .prev_page {
+  font-size: 200%;
+  color: #00FF00;
+}
+
+DIV.pagination .next_page {
+  font-size: 200%;
+  color: #00FF00;
+}
+
+DIV.pagination .disabled {
+  font-size: 100%;
+  color: #606060;
+}
+
+DIV.pagination .current {
+  font-size: 125%;
+  color: #FF4040;
+}
+
+/* Flash CSS */
 #flashNotice {
   color: green;
 }

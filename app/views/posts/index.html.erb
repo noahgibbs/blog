@@ -4,9 +4,7 @@
 <% @commentlink = true %>
 <%= render :partial => 'post', :collection => @posts %>
 
-<div id="pageLinks">
-  <%= page_links @page %>
-</div>
+<%= will_paginate :id => true %>
 
 </div> <!-- Content div -->
 
