@@ -17,7 +17,11 @@
   <img src="/images/myface.jpg" width="100"> <br /> About Me</a>
 
   <p>
-  <%= link_to 'Front Page', posts_path %>
+  <%= link_to 'Published Posts', posts_path({:tag => 'published'}) %>
+  </p>
+
+  <p>
+  <%= link_to 'All Posts', posts_path %>
   </p>
 
   <p>
