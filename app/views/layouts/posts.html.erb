@@ -9,6 +9,7 @@
   <title><%= @title ? "#{@title} - " : "" %>Angelbob on Programming</title>
   <%= stylesheet_link_tag 'angelbob' %>
   <%= auto_discovery_link_tag :atom, posts_path(:atom) %>
+  <%= @post ? '<link rel="canonical" href="http://blog.angelbob.com/posts/' + "#{@post.to_param}" + '" />' : "" %>
 </head>
 <body>
 
