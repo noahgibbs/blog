@@ -19,6 +19,8 @@ class Post < ActiveRecord::Base
   end
 
   def to_param
+    return "" if id.nil?
+    return "#{id}" if title.nil?
     "#{id}-#{title.gsub(/[^a-z1-9A-Z]+/i, '-')}"
   end
 end
