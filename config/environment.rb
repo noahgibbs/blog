@@ -44,3 +44,13 @@ Rails::Initializer.run do |config|
 end
 require 'tagging_extensions'
 require 'will_paginate'
+
+# This is used to keep PostGRES and other picky databases happy with the
+# long-url-name hack
+class ActiveRecord::Base
+  def self.find_from_ids_with_coercion(id, options)
+    find_from_ids_without_coercion(id.to_i, options)
+  end
+  alias_method :find_from_ids_without_coercion, :find_from_ids
+  alias_method :find_from_ids, :find_from_ids_with_coercion
+end

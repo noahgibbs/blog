@@ -17,4 +17,8 @@ class Post < ActiveRecord::Base
       self.count
     end
   end
+
+  def to_param
+    "#{id}-#{title.gsub(/[^a-z1-9A-Z]+/i, '-')}"
+  end
 end
