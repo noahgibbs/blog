@@ -1,6 +1,9 @@
 class PostsController < ApplicationController
   before_filter :authenticate, :except => [:index,:show]
 
+  FindOpts = { :order => 'posts.created_at DESC, posts.id DESC',
+    	     	:readonly => true }
+
   # GET /posts
   # GET /posts.xml
   def index
@@ -8,11 +11,13 @@ class PostsController < ApplicationController
     @tag = params[:tag]
     @keywords = Tag.find(:all).map { |t| t.name }
 
-    options = { :order => 'posts.created_at DESC, posts.id DESC',
-    	     	:page => @page, :readonly => true,
-		:tag => @tag, :finder => :tag_finder,
-		:total_entries => Post.tag_counter(@tag),
-		:per_page => PostsHelper::PostsPerPage }
+    options = FindOpts.merge({
+			:page => @page, :tag => @tag,
+			:total_entries => Post.tag_counter(@tag),
+			:finder => :tag_finder,
+			:per_page => PostsHelper::PostsPerPage
+			})
+
     @posts = Post.paginate(options)
 
     respond_to do |format|
@@ -28,6 +33,12 @@ class PostsController < ApplicationController
     @post = Post.find(params[:id])
     @title = @post.title
     @keywords = @post.tag_list.split
+
+    nextOpts = FindOpts.merge({ :conditions => [ "id > ?", @post.id ] })
+    prevOpts = FindOpts.merge({ :conditions => [ "id < ?", @post.id ] })
+
+    @nextpost = Post.find(:last, nextOpts)
+    @prevpost = Post.find(:first, prevOpts)
 
     respond_to do |format|
       format.html # show.html.erb
