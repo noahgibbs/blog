@@ -21,6 +21,9 @@ class Post < ActiveRecord::Base
   def to_param
     return "" if id.nil?
     return "#{id}" if title.nil?
-    "#{id}-#{title.gsub(/[^a-z1-9A-Z]+/i, '-')}"
+    regexp = /[^a-z1-9A-Z]+/i
+    pt = title.gsub(regexp, '-')
+    kw = tag_list.gsub(regexp, '-')
+    "#{id}-#{pt}___#{kw}"
   end
 end
