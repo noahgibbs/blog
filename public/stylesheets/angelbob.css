@@ -45,6 +45,17 @@ a:hover { color: #fff; background-color:#000; }
   color: #A0A0A0;
 }
 
+.disclaimer {
+  font-size: 80%;
+  color: #808080;
+}
+
+.disclaimertag {
+  font-size: 80%;
+  font-weight: bold;
+  color: #0000FF;
+}
+
 .post {
 
 }

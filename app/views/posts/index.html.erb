@@ -1,6 +1,11 @@
 <div class="content">
 <%= @page > 1 ? "<h1>Page #{@page}</h1>" : "" %>
 
+<p class="disclaimer">
+  Viewing <%= @tag ? "only" : ""%> <span class="disclaimertag">
+    <%= @tag ? @tag : "all" %></span> posts
+</p>
+
 <% @commentlink = true %>
 <%= render :partial => 'post', :collection => @posts %>
 

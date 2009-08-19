@@ -1,7 +1,7 @@
 # Be sure to restart your server when you modify this file
 
 # Specifies gem version of Rails to use when vendor/rails is not present
-RAILS_GEM_VERSION = '2.3.2' unless defined? RAILS_GEM_VERSION
+RAILS_GEM_VERSION = '2.3.3' unless defined? RAILS_GEM_VERSION
 
 # Bootstrap the Rails environment, frameworks, and default configuration
 require File.join(File.dirname(__FILE__), 'boot')
@@ -47,10 +47,10 @@ require 'will_paginate'
 
 # This is used to keep PostGRES and other picky databases happy with the
 # long-url-name hack
-class ActiveRecord::Base
-  def self.find_from_ids_with_coercion(id, options)
-    find_from_ids_without_coercion(id.to_i, options)
-  end
-  alias_method :find_from_ids_without_coercion, :find_from_ids
-  alias_method :find_from_ids, :find_from_ids_with_coercion
-end
+#class ActiveRecord::Base
+#  def self.find_from_ids_with_coercion(id, options)
+#    find_from_ids_without_coercion(id.to_i, options)
+#  end
+#  alias_method :find_from_ids_without_coercion, :find_from_ids
+#  alias_method :find_from_ids, :find_from_ids_with_coercion
+#end
