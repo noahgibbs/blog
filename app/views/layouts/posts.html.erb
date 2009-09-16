@@ -15,7 +15,8 @@
 
 <div id="leftnavbar">
   <a href="about.html">
-  <img src="/images/myface.jpg" width="100"> <br /> About Me</a>
+  <img src="/images/myface.jpg" width="100" alt="my face" />
+    <br /> About Me</a>
 
   <p>
   <%= link_to 'Published Posts', posts_path({:tag => 'published'}) %>
@@ -31,12 +32,12 @@
 
   <hr />
 
-  <p> Tags: <%= html_for_tag_list %> </p>
+  <p> View by Tag: <%= html_for_tag_list %> </p>
 
   <hr />
 
   <p> <a href="http://feeds2.feedburner.com/AngelbobsBlog">
-    <img src="http://feeds2.feedburner.com/~fc/AngelbobsBlog?bg=99CCFF&amp;fg=444444&amp;anim=0" height="26" width="88" style="border:0" alt="" /></a>
+    <img src="http://feeds2.feedburner.com/~fc/AngelbobsBlog?bg=99CCFF&amp;fg=444444&amp;anim=0" height="26" width="88" style="border:0" alt="FeedBurner picture" /></a>
   </p>
 
   <hr />

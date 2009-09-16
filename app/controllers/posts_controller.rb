@@ -9,7 +9,8 @@ class PostsController < ApplicationController
   def index
     @page = (params[:page] || "1").to_i
     @tag = params[:tag]
-    @keywords = Tag.find(:all).map { |t| t.name }
+    #@keywords = Tag.find(:all).map { |t| t.name }
+    @keywords = ["programming", "ruby", "rails", "railsgame", "juggernaut"]
 
     options = FindOpts.merge({
 			:page => @page, :tag => @tag,
