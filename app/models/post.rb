@@ -24,6 +24,6 @@ class Post < ActiveRecord::Base
     regexp = /[^a-z1-9A-Z]+/i
     pt = title.gsub(regexp, '-')
     kw = tag_list.gsub(regexp, '-')
-    "#{id}-#{pt}___#{kw}"
+    "#{id}-#{pt}---#{kw}"
   end
 end
