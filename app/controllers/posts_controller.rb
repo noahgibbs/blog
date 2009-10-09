@@ -118,8 +118,8 @@ class PostsController < ApplicationController
   private
 
   def authenticate
-    authenticate_or_request_with_http_basic do |name, password|
-      name == "admin" && password == ENV["BLOG_PASSWORD"]
+    authenticate_or_request_with_http_digest("Admin") do |username|
+      ENV["BLOG_PASSWORD"]
     end
   end
 end
