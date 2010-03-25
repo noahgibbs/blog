@@ -1,5 +1,5 @@
 HoptoadNotifier.configure do |config|
-  config.api_key = 'Angelbob's Blog'
+  config.api_key = 'Angelbob\'s Blog'
   config.host = 'cheaptoad-catcher.heroku.com'
   config.port = 80
 

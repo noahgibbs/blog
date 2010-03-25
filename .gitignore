@@ -2,3 +2,5 @@
 #*#
 db/*.sqlite3
 tmp/*
+log/development.log
+log/production.log
