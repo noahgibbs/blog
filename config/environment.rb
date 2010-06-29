@@ -1,7 +1,15 @@
 # Be sure to restart your server when you modify this file
 
 # Specifies gem version of Rails to use when vendor/rails is not present
-RAILS_GEM_VERSION = '2.3.5' unless defined? RAILS_GEM_VERSION
+RAILS_GEM_VERSION = '2.3.8' unless defined? RAILS_GEM_VERSION
+
+passwords_file = File.join(File.dirname(__FILE__), "..", "..", "Passwords.sh")
+if File.exist? passwords_file
+  blog_password = `. #{passwords_file}; echo $BLOG_PASSWORD`.chomp
+  ENV['BLOG_PASSWORD'] = blog_password
+  print "Loading passwords file...\n"
+  print "Blog password: '#{ENV['BLOG_PASSWORD']}' / '#{blog_password}'\n"
+end
 
 # Bootstrap the Rails environment, frameworks, and default configuration
 require File.join(File.dirname(__FILE__), 'boot')

@@ -60,6 +60,8 @@ class PostsController < ApplicationController
 
   # GET /posts/1/edit
   def edit
+    remove_empty_tags
+
     @post = Post.find(params[:id])
   end
 
@@ -91,6 +93,8 @@ class PostsController < ApplicationController
     @post = Post.find(params[:id])
     @post.tag_with tags if tags
 
+    remove_empty_tags
+
     respond_to do |format|
       if @post.update_attributes(params[:post])
         flash[:notice] = 'Post was successfully updated.'
@@ -120,6 +124,14 @@ class PostsController < ApplicationController
   def authenticate
     authenticate_or_request_with_http_digest("Admin") do |username|
       ENV["BLOG_PASSWORD"]
+    end
+  end
+
+  def remove_empty_tags
+    tags = Tag.find(:all)
+
+    tags.each do |tag|
+      tag.destroy if tag.taggings.count == 0
     end
   end
 end
