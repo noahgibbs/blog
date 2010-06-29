@@ -1,11 +1,13 @@
 <% div_for post do %>
   <h2> <%= link_to_unless_current h(post.title), :action => "show", :id => post %></h2>
-  <p> <span class="createdTime"> Created:
+  <p> <span class="createdTime"> Posted:
       <%= time_to_human(post.created_at) %> ago
-      (<%= post.created_at %> </span>) /
-    <span class="updatedTime"> Updated:
+      (<%= post.created_at %> </span>)
+    <% if post.created_at != post.updated_at %>
+    / <span class="updatedTime"> Updated:
       <%= time_to_human(post.updated_at) %> ago
       (<%= post.updated_at %> </span>) </p>
+    <% end %>
 
   <%= simple_format post.body %>
 
