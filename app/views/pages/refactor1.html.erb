@@ -1,0 +1,417 @@
+<% title "A Ruby on Rails 3 App in Steps: Part One" %>
+
+<h1> Building a Rails3 App in Steps </h1>
+
+<h2> Part One </h2>
+
+<p>
+  I've done the very basics for Rails3 already.  That is, I've run
+  <span class="cmdline">sudo gem install rails --pre</span> to
+  get it installed.
+</p>
+
+<p>
+  In this series, I'm going to create a very simple social application
+  that lets you post a code snippet to refactor, and lets everybody
+  suggest different refactors of that snippet.  Rails turns out to
+  be a very good, very simple platform for that.
+</p>
+
+<p>
+  First, I create a Rails 3 app:
+</p>
+
+<% harsh :syntax => :bash, :lines => true do %>
+angelbob@dell-desktop:~/src/rails$ rails new refactor
+      create  
+      create  README
+      create  Rakefile
+      create  config.ru
+      create  .gitignore
+      (Cut for length...)
+      create  vendor/plugins/.gitkeep
+<% end %>
+
+<p>
+  That's a lot of stuff.  That's a good thing, it turns out.  For
+  instance, that means it's already set up for git:
+</p>
+
+<% harsh :syntax => :bash, :lines => true do %>
+angelbob@dell-desktop:~/src/rails$ cd refactor
+angelbob@dell-desktop:~/src/rails/refactor$ ls
+app     config.ru  doc      lib  public    README  test  vendor
+config  db         Gemfile  log  Rakefile  script  tmp
+angelbob@dell-desktop:~/src/rails/refactor$ git init
+Initialized empty Git repository in /home/angelbob/src/rails/refactor/.git/
+angelbob@dell-desktop:~/src/rails/refactor$ git add .
+angelbob@dell-desktop:~/src/rails/refactor$ git commit -m "New rails3 project"
+[master (root-commit) f17dd29] New rails3 project
+ 39 files changed, 9083 insertions(+), 0 deletions(-)
+ create mode 100644 .gitignore
+ create mode 100644 Gemfile
+ create mode 100644 README
+ create mode 100644 Rakefile
+ (Cut for length...)
+ create mode 100644 vendor/plugins/.gitkeep
+angelbob@dell-desktop:~/src/rails/refactor$
+<% end %>
+
+<p>
+  We don't have to do anything remote with git yet.  We can just make
+  a local repository for tracking.  I'm also setting up
+  a <a href="http://github.com/noahgibbs/refactor_it_tutorial">GitHub
+  repository for this</a>, but that's just so that you can see my
+  progress.
+</p>
+
+<p>
+  Eventually, we're going to want to have users for our project, and
+  I think <a href="http://github.com/plataformatec/devise">devise</a>
+  is exactly the solution to use.
+</p>
+
+<% harsh :syntax => :bash, :lines => true do %>
+angelbob@dell-desktop:~/src/rails/refactor$ sudo gem install devise --pre
+Building native extensions.  This could take a while...
+Successfully installed warden-0.10.7
+Successfully installed bcrypt-ruby-2.1.2
+Successfully installed devise-1.1.rc2
+3 gems installed
+Installing ri documentation for warden-0.10.7...
+Installing ri documentation for bcrypt-ruby-2.1.2...
+Installing ri documentation for devise-1.1.rc2...
+Installing RDoc documentation for warden-0.10.7...
+Installing RDoc documentation for bcrypt-ruby-2.1.2...
+Installing RDoc documentation for devise-1.1.rc2...
+<% end %>
+
+<p>
+  Awesome!  What next?  Right, I need to do some devise configuration.
+</p>
+
+<% harsh :syntax => :bash, :lines => true do %>
+angelbob@dell-desktop:~/src/rails/refactor$ rails generate devise:install
+Could not find generator devise:install.
+<% end %>
+
+<p>
+  Huh?  Oh, wait, can't see devise.  This is Rails 3, so any gem we want
+  to use needs to be declared to the Bundler.  So I'll edit the Gemfile:
+</p>
+
+<% harsh :syntax => :ruby, :lines => true do %>
+source 'http://rubygems.org'
+
+gem 'rails', '3.0.0.beta4'
+
+# Bundle edge Rails instead:
+# gem 'rails', :git => 'git://github.com/rails/rails.git'
+
+gem 'sqlite3-ruby', :require => 'sqlite3'
+
+# Use unicorn as the web server
+# gem 'unicorn'
+
+# Deploy with Capistrano
+# gem 'capistrano'
+
+# To use debugger
+# gem 'ruby-debug'
+
+# Bundle the extra gems:
+# gem 'bj'
+# gem 'nokogiri', '1.4.1'
+# gem 'sqlite3-ruby', :require => 'sqlite3'
+# gem 'aws-s3', :require => 'aws/s3'
+
+gem 'devise', '1.1.rc2'
+
+# Bundle gems for certain environments:
+# gem 'rspec', :group => :test
+# group :test do
+#   gem 'webrat'
+# end
+<% end %>
+
+<p>
+  If you look closely, you'll see that I added a line for devise in there.
+  I'm using the prerelease 1.1.rc2, though you can use whatever you just
+  installed.  Now, let's try again:
+</p>
+
+<% harsh :syntax => :bash, :lines => true do %>
+angelbob@dell-desktop:~/src/rails/refactor$ rails generate devise:install
+[WARNING] config.encryptor is not set in your config/initializers/devise.rb. Devise will then set it to :bcrypt. If you were using the previous default encryptor, please add config.encryptor = :sha1 to your configuration file.
+      create  config/initializers/devise.rb
+      create  config/locales/devise.en.yml
+
+===============================================================================
+
+Some setup you must do manually if you haven't yet:
+
+  1. Setup default url options for your specific environment. Here is an
+     example of development environment:
+
+       config.action_mailer.default_url_options = { :host => 'localhost:3000' }
+
+     This is a required Rails configuration. In production it must be the
+     actual host of your application
+
+  2. Ensure you have defined root_url to *something* in your config/routes.rb.
+     For example:
+
+       root :to => "home#index"
+
+  3. Ensure you have flash messages in app/views/layouts/application.html.erb.
+     For example:
+
+       <p class="notice"><%%= notice %></p>
+       <p class="alert"><%%= alert %></p>
+
+===============================================================================
+<% end %>
+
+<p>
+  Yay!  Devise has given me some good advice, and I should take it.
+  Let's create the new root controller first:
+</p>
+
+<% harsh :syntax => :bash, :lines => true do %>
+angelbob@dell-desktop:~/src/rails/refactor$ rails generate controller Welcome index
+      create  app/controllers/welcome_controller.rb
+       route  get "welcome/index"
+      invoke  erb
+      create    app/views/welcome
+      create    app/views/welcome/index.html.erb
+      invoke  test_unit
+      create    test/functional/welcome_controller_test.rb
+      invoke  helper
+      create    app/helpers/welcome_helper.rb
+      invoke    test_unit
+      create      test/unit/helpers/welcome_helper_test.rb
+angelbob@dell-desktop:~/src/rails/refactor$ git rm public/index.html
+rm 'public/index.html'
+<% end %>
+
+<p>
+  Some day I should join the real world and use rspec or some other
+  real test framework, but for now, Test::Unit is as good for a tutorial
+  as anything else.  But that reminds me, Rails 3 lets me customize all
+  kinds of good stuff.  I should add jQuery after I've finished getting
+  devise working-ish.
+</p>
+
+<p>
+  I also took devise's advice and added the ActionMailer configuration
+  option to config/environments/development.html.  I'll use something
+  different in production because I'll actually want to send email and
+  I'll have an actual hostname.  And I added a div with the id
+  "flash_container" to my app/views/layouts/application.html file with
+  the two lines devise told me to.  You can find this stuff in the
+  GitHub repo if you're curious about the details, of course.
+</p>
+
+<p>
+  The next thing for devise is to create a model for its user/login
+  objects.  Devise supports all kinds of crazy stuff with all kinds of
+  multiple permissions, but we only really need one flavor of user
+  for this:
+</p>
+
+<% harsh :syntax => :bash, :lines => true do %>
+angelbob@dell-desktop:~/src/rails/refactor$ rails generate devise User
+      invoke  active_record
+      create    app/models/user.rb
+      invoke    test_unit
+      create      test/unit/user_test.rb
+      create      test/fixtures/users.yml
+      inject  app/models/user.rb
+      create  db/migrate/20100626034353_devise_create_users.rb
+       route  devise_for :users
+<% end %>
+
+<p>
+  Devise uses Rails engines and other stuff to add a bunch of fun UI
+  to your app.  That's why it added a route, for instance.  So now we
+  basically have the ability to create users, log in and out and so
+  on.  At least, we will once we run the migration:
+</p>
+
+<% harsh :syntax => :ruby, :lines => true do %>
+class DeviseCreateUsers < ActiveRecord::Migration
+  def self.up
+    create_table(:usersdo |t|
+      t.database_authenticatable :null => false
+      t.recoverable
+      t.rememberable
+      t.trackable
+
+      # t.confirmable
+      # t.lockable :lock_strategy => :failed_attempts, :unlock_strategy => :both
+      # t.token_authenticatable
+
+      t.timestamps
+    end
+
+    add_index :users, :email,                :unique => true
+    add_index :users, :reset_password_token, :unique => true
+    # add_index :users, :confirmation_token,   :unique => true
+    # add_index :users, :unlock_token,         :unique => true
+  end
+
+  def self.down
+    drop_table :users
+  end
+end
+<% end %>
+
+<p>
+  Each of those lines is a thing you can potentially do with devise
+  users.  "Confirmable", for instance, means that you can have
+  devise send email to confirm the user, and require clicking on a
+  link to verify.  I'll uncomment that.  "Lockable" is to lock
+  somebody out for, for instance, failing to log in too many times.
+  Token_authenticatable is to let you log in with a token rather than
+  using the regular database-and-site route.
+</p>
+
+<p>
+  If you uncomment
+  everything, you can just configure it in the model (but your
+  users table is slightly larger than needed).  I'll do that.  Also,
+  I'll include both indices.  Users get looked up a lot and they're
+  added rarely, so you can index them to Chattanooga and back without
+  it being a big problem.  And I want a "username" field, so I'm
+  putting in "t.string :username, :limit => 50", because I'm like
+  that.  I don't like logging in with an email address particularly.
+</p>
+
+<p>
+  And then, the model:
+</p>
+
+<% harsh :syntax => :ruby, :lines => true do %>
+class User < ActiveRecord::Base
+
+  # Include default devise modules. Others available are:
+  # :token_authenticatable, :confirmable, :lockable and :timeoutable
+  devise :database_authenticatable, :registerable,
+         :recoverable, :rememberable, :trackable, :validatable
+
+  # Setup accessible (or protected) attributes for your model
+  attr_accessible :email, :password, :password_confirmation
+end
+<% end %>
+
+<p>
+  So what's all that?  Well, registerable lets you create the users,
+  confirmable sends email and has you click on a link, recoverable
+  gives password recovery, rememberable gives a "remember me" link,
+  lockable lets you lock them out configurably, and timeoutable
+  logs them out after a while.  All this stuff is remarkably poorly
+  documented, and it's kinda scattered in the source code for devise.
+  You can find something about it in devise's initializer
+  (config/initializers/devise.rb).  You should go look at it in any
+  case.
+</p>
+
+<p>
+  I'm just uncommenting everything except :token_authenticatable,
+  because I want login timeouts, login lockouts and email confirmation.
+  You can pick a different set of stuff if you like.
+</p>
+
+<p>
+  The initializer will let you change the "from" email address for
+  confirmation emails (if you have them), the timeout for logins,
+  the number of unsuccessful login attempts and many other things.
+  I like :username to be the authentication key, for instance.
+  But I won't change that yet, because that requires customizing
+  the views.  We'll get there.
+</p>
+
+<p>
+  Okay.  You'll want to run the rails server to test stuff with.
+  In Rails 3, that means running "rails server" from the rails
+  app directory.  Give it a try.  Then, open a web browser and
+  point it at "http://localhost:3000".  You'll probably see
+  something like this message:
+</p>
+
+<% harsh :syntax => :html, :lines => true do %>
+Welcome#index
+
+Find me in app/views/welcome/index.html.erb
+<% end %>
+
+<p>
+  Perfect!  We added the controller and didn't customize it, so
+  that's what we should be seeing.  Let's change the view a bit:
+</p>
+
+<% harsh :syntax => :rubyonrails, :lines => true do %>
+<%% if current_user %>
+  Logged in as <%%= current_user.email %>:
+  <%%= link_to 'Sign Out', destroy_user_session_url %>
+<%% else %>
+  <%%= link_to 'Sign In', new_user_session_url %> or
+  <%%= link_to 'Register', new_user_registration_url %>
+<%% end %>
+<% end %>
+
+<p>
+  Now reload, and hit "sign in" or "register".  You should
+  see a page (from the devise gem, naturally) to let you
+  log in or create an account.
+</p>
+
+<p>
+  Creating an account is good.  Try that.  Notice that you
+  can't enter a username yet.  And it's unlikely that Rails
+  can get the email sent, so you should go to where you're running
+  the server.  You'll see something like this:
+</p>
+
+<% harsh :syntax => :bash, :lines => true do %>
+Started POST "/users" for 127.0.0.1 at Fri Jun 25 21:55:04 -0700 2010
+  Processing by Devise::RegistrationsController#create as HTML
+  Parameters: {"commit"=>"Sign up", "authenticity_token"=>"vhmK0PymfGUPcXbS/d/7/8UwyNoO5Qt7Q+CfVdIlJVc=", "user"=>{"password_confirmation"=>"[FILTERED]", "password"=>"[FILTERED]", "email"=>"somebody@somedomain.com"}}
+  SQL (0.3ms)   SELECT name
+ FROM sqlite_master
+ WHERE type = 'table' AND NOT name = 'sqlite_sequence'
+
+  User Load (0.2ms)  SELECT "users"."id" FROM "users" WHERE ("users"."email" = 'somebody@somedomain.com') LIMIT 1
+  SQL (0.6ms)  INSERT INTO "users" ("authentication_token", "confirmation_sent_at", "confirmation_token", "confirmed_at", "created_at", "current_sign_in_at", "current_sign_in_ip", "email", "encrypted_password", "failed_attempts", "last_sign_in_at", "last_sign_in_ip", "locked_at", "password_salt", "remember_created_at", "remember_token", "reset_password_token", "sign_in_count", "unlock_token", "updated_at", "username") VALUES (NULL, '2010-06-26 04:55:04.734561', 'S7oc9zvXoY1_rnxdBQfH', NULL, '2010-06-26 04:55:04.734629', NULL, NULL, 'noah_gibbs@yahoo.com', '$2a$10$GDmudCAKDYFPMMoHGiB4seTPlvuXExgMJfgAHDLhaaNzfQEcTVOE2', 0, NULL, NULL, NULL, '$2a$10$GDmudCAKDYFPMMoHGiB4se', NULL, NULL, NULL, 0, NULL, '2010-06-26 04:55:04.734629', NULL)
+Rendered /usr/local/lib/ruby/gems/1.8/gems/devise-1.1.rc2/app/views/devise/mailer/confirmation_instructions.html.erb (1.2ms)
+
+Sent mail to noah_gibbs@yahoo.com (77ms)
+Date: Fri, 25 Jun 2010 21:55:04 -0700
+From: Refactorer@refactor.angelbob.com
+To: noah_gibbs@yahoo.com
+Message-ID: <4c258828d57ee_55c924903fd27737@dell-desktop.mail>
+Subject: Confirmation instructions
+Mime-Version: 1.0
+Content-Type: text/html;
+ charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+<p>Welcome noah_gibbs@yahoo.com!</p>
+
+<p>You can confirm your account through the link below:</p>
+
+<p><a href="http://localhost:3000/users/confirmation?confirmation_token=S7oc9zvXoY1_rnxdBqfH">Confirm my account</a></p>
+Completed   in 376ms
+<% end %>
+
+<p>
+  If you turned on confirmations, you'll note that there's a
+  confirmation URL you'll need to go to.  Copy it out of the log, and
+  go there in your browser.  If you didn't turn on confirmations, you
+  can probably just log in now.
+</p>
+
+<p>
+  That's not a bad amount of work to get a full user signup system
+  for your app!
+</p>
