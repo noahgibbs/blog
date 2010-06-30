@@ -62,7 +62,11 @@
 
 <p id="flashNotice"><%= flash[:notice] %></p>
 
-<%= yield(:content) or yield %>
+<div class="content">
+
+<%= yield %>
+
+</div>
 
 <!-- Google Analytics hook -->
 <script type="text/javascript">
