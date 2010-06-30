@@ -7,8 +7,6 @@ passwords_file = File.join(File.dirname(__FILE__), "..", "..", "Passwords.sh")
 if File.exist? passwords_file
   blog_password = `. #{passwords_file}; echo $BLOG_PASSWORD`.chomp
   ENV['BLOG_PASSWORD'] = blog_password
-  print "Loading passwords file...\n"
-  print "Blog password: '#{ENV['BLOG_PASSWORD']}' / '#{blog_password}'\n"
 end
 
 # Bootstrap the Rails environment, frameworks, and default configuration
