@@ -1,8 +1,10 @@
-<% title "A Ruby on Rails 3 App in Steps: Part One" %>
+<% title "Rails3 Refactor It in Steps: Part One" %>
 
-<h1> Building a Rails3 App in Steps </h1>
+<% shell = "shell-unix-generic".to_sym %>
 
-<h2> Part One </h2>
+<h1> Building Refactor It, a Rails3 App, in Steps </h1>
+
+<h2> Part One: From Nothing to Logging In </h2>
 
 <p>
   I've done the very basics for Rails3 already.  That is, I've run
@@ -21,7 +23,7 @@
   First, I create a Rails 3 app:
 </p>
 
-<% harsh :syntax => :bash, :lines => true do %>
+<% harsh :format => shell, :lines => true do %>
 angelbob@dell-desktop:~/src/rails$ rails new refactor
       create  
       create  README
@@ -37,7 +39,7 @@ angelbob@dell-desktop:~/src/rails$ rails new refactor
   instance, that means it's already set up for git:
 </p>
 
-<% harsh :syntax => :bash, :lines => true do %>
+<% harsh :format => shell, :lines => true do %>
 angelbob@dell-desktop:~/src/rails$ cd refactor
 angelbob@dell-desktop:~/src/rails/refactor$ ls
 app     config.ru  doc      lib  public    README  test  vendor
@@ -71,7 +73,7 @@ angelbob@dell-desktop:~/src/rails/refactor$
   is exactly the solution to use.
 </p>
 
-<% harsh :syntax => :bash, :lines => true do %>
+<% harsh :format => shell, :lines => true do %>
 angelbob@dell-desktop:~/src/rails/refactor$ sudo gem install devise --pre
 Building native extensions.  This could take a while...
 Successfully installed warden-0.10.7
@@ -90,7 +92,7 @@ Installing RDoc documentation for devise-1.1.rc2...
   Awesome!  What next?  Right, I need to do some devise configuration.
 </p>
 
-<% harsh :syntax => :bash, :lines => true do %>
+<% harsh :format => shell, :lines => true do %>
 angelbob@dell-desktop:~/src/rails/refactor$ rails generate devise:install
 Could not find generator devise:install.
 <% end %>
@@ -100,7 +102,7 @@ Could not find generator devise:install.
   to use needs to be declared to the Bundler.  So I'll edit the Gemfile:
 </p>
 
-<% harsh :syntax => :ruby, :lines => true do %>
+<% harsh :format => :ruby, :lines => true do %>
 source 'http://rubygems.org'
 
 gem 'rails', '3.0.0.beta4'
@@ -140,7 +142,7 @@ gem 'devise', '1.1.rc2'
   installed.  Now, let's try again:
 </p>
 
-<% harsh :syntax => :bash, :lines => true do %>
+<% harsh :format => shell, :lines => true do %>
 angelbob@dell-desktop:~/src/rails/refactor$ rails generate devise:install
 [WARNING] config.encryptor is not set in your config/initializers/devise.rb. Devise will then set it to :bcrypt. If you were using the previous default encryptor, please add config.encryptor = :sha1 to your configuration file.
       create  config/initializers/devise.rb
@@ -177,7 +179,7 @@ Some setup you must do manually if you haven't yet:
   Let's create the new root controller first:
 </p>
 
-<% harsh :syntax => :bash, :lines => true do %>
+<% harsh :format => shell, :lines => true do %>
 angelbob@dell-desktop:~/src/rails/refactor$ rails generate controller Welcome index
       create  app/controllers/welcome_controller.rb
        route  get "welcome/index"
@@ -219,7 +221,7 @@ rm 'public/index.html'
   for this:
 </p>
 
-<% harsh :syntax => :bash, :lines => true do %>
+<% harsh :format => shell, :lines => true do %>
 angelbob@dell-desktop:~/src/rails/refactor$ rails generate devise User
       invoke  active_record
       create    app/models/user.rb
@@ -238,7 +240,7 @@ angelbob@dell-desktop:~/src/rails/refactor$ rails generate devise User
   on.  At least, we will once we run the migration:
 </p>
 
-<% harsh :syntax => :ruby, :lines => true do %>
+<% harsh :format => :ruby, :lines => true do %>
 class DeviseCreateUsers < ActiveRecord::Migration
   def self.up
     create_table(:usersdo |t|
@@ -291,7 +293,7 @@ end
   And then, the model:
 </p>
 
-<% harsh :syntax => :ruby, :lines => true do %>
+<% harsh :format => :ruby, :lines => true do %>
 class User < ActiveRecord::Base
 
   # Include default devise modules. Others available are:
@@ -339,7 +341,7 @@ end
   something like this message:
 </p>
 
-<% harsh :syntax => :html, :lines => true do %>
+<% harsh :format => :html, :lines => true do %>
 Welcome#index
 
 Find me in app/views/welcome/index.html.erb
@@ -350,7 +352,7 @@ Find me in app/views/welcome/index.html.erb
   that's what we should be seeing.  Let's change the view a bit:
 </p>
 
-<% harsh :syntax => :rubyonrails, :lines => true do %>
+<% harsh :format => :ruby_on_rails, :lines => true do %>
 <%% if current_user %>
   Logged in as <%%= current_user.email %>:
   <%%= link_to 'Sign Out', destroy_user_session_url %>
@@ -367,13 +369,13 @@ Find me in app/views/welcome/index.html.erb
 </p>
 
 <p>
-  Creating an account is good.  Try that.  Notice that you
-  can't enter a username yet.  And it's unlikely that Rails
-  can get the email sent, so you should go to where you're running
-  the server.  You'll see something like this:
+  Creating an account is good.  Try that.  Notice that you can't enter
+  a username yet.  And it's unlikely that Rails can get the email
+  sent, so you should go to the console where you're running the
+  server.  You'll see something like this in the log:
 </p>
 
-<% harsh :syntax => :bash, :lines => true do %>
+<% harsh :format => shell, :lines => true do %>
 Started POST "/users" for 127.0.0.1 at Fri Jun 25 21:55:04 -0700 2010
   Processing by Devise::RegistrationsController#create as HTML
   Parameters: {"commit"=>"Sign up", "authenticity_token"=>"vhmK0PymfGUPcXbS/d/7/8UwyNoO5Qt7Q+CfVdIlJVc=", "user"=>{"password_confirmation"=>"[FILTERED]", "password"=>"[FILTERED]", "email"=>"somebody@somedomain.com"}}
