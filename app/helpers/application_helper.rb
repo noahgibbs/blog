@@ -1,5 +1,9 @@
 # Methods added to this helper will be available to all templates in the application.
 module ApplicationHelper
+  def title(str)
+    @title = str
+  end
+
   def time_to_human(time)
     duration = Time.now - time
     intervals = [ :year, :month, :week, :day, :hour, :minute ]
