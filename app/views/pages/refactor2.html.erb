@@ -1,0 +1,178 @@
+<% title "Rails3 Refactor It in Steps: Part Two" %>
+
+<% shell = "shell-unix-generic".to_sym %>
+
+<h1> Building Refactor It, a Rails3 App, in Steps </h1>
+
+<h2> Part Two: Nested Resources </h2>
+
+<p>
+  The idea of "Refactor It", such as it is, is that users can
+  submit a snippet, and other users can suggest refactorings.
+</p>
+
+<p>
+  That suggests a simple data architecture:  snippet objects
+  contain refactoring objects, they're represented by simple
+  ActiveRecord models.  So let's do that.
+</p>
+
+<p>
+  It'll be quicker to build these things with scaffolds, so
+  let's do that.  Rails 3 generators use the "rails generate"
+  command, which has nice help:
+</p>
+
+<% harsh :format => shell, :lines => true do %>
+angelbob@dell-desktop:~/src/rails/refactor$ rails generate scaffold 
+Usage:
+  rails generate scaffold NAME [field:type field:type] [options]
+
+Options:
+      [--singleton]               # Supply to create a singleton controller
+  -c, --scaffold-controller=NAME  # Scaffold controller to be invoked
+                                  # Default: scaffold_controller
+  -y, [--stylesheets]             # Indicates when to generate stylesheets
+                                  # Default: true
+      [--force-plural]            # Forces the use of a plural ModelName
+  -o, --orm=NAME                  # Orm to be invoked
+                                  # Default: active_record
+
+ScaffoldController options:
+  -t, [--test-framework=NAME]   # Test framework to be invoked
+                                # Default: test_unit
+  -e, [--template-engine=NAME]  # Template engine to be invoked
+                                # Default: erb
+      [--helper]                # Indicates when to generate helper
+                                # Default: true
+
+Runtime options:
+  -q, [--quiet]    # Supress status output
+  -s, [--skip]     # Skip files that already exist
+  -p, [--pretend]  # Run but do not make any changes
+  -f, [--force]    # Overwrite files that already exist
+
+TestUnit options:
+      [--fixture]                   # Indicates when to generate fixture
+                                    # Default: true
+  -r, [--fixture-replacement=NAME]  # Fixture replacement to be invoked
+
+ActiveRecord options:
+  [--migration]      # Indicates when to generate migration
+                     # Default: true
+  [--parent=PARENT]  # The parent class for the generated model
+  [--timestamps]     # Indicates when to generate timestamps
+                     # Default: true
+
+Description:
+    Create rails files for scaffold generator.
+<% end %>
+
+<p>
+  From there, we can generate the snippet and refactor objects:
+</p>
+
+<% harsh :format => shell, :lines => true do %>
+angelbob@dell-desktop:~/src/rails/refactor$ rails generate scaffold snippet title:string body:text notes:text language:string user_id:integer karma:integer
+      invoke  active_record
+      create    db/migrate/20100701022620_create_snippets.rb
+      create    app/models/snippet.rb
+      invoke    test_unit
+      (Cut for length...)
+      create        test/unit/helpers/snippets_helper_test.rb
+      invoke  stylesheets
+      create    public/stylesheets/scaffold.css
+angelbob@dell-desktop:~/src/rails/refactor$ rails generate scaffold refactoring body:text comment:text snippet_id:integer language:string user_id:integer karma:integer
+      invoke  active_record
+      create    db/migrate/20100701030608_create_refactorings.rb
+      create    app/models/refactoring.rb
+      invoke    test_unit
+      (Cut for length...)
+      create        test/unit/helpers/refactorings_helper_test.rb
+      invoke  stylesheets
+   identical    public/stylesheets/scaffold.css
+<% end %>
+
+<p>
+  That's fine -- let's look at the migrations that Rails set up for
+  us.  Here's the one for snippets, after I've added a couple of
+  quick options:
+</p>
+
+<% harsh :format => :ruby_on_rails, :lines => true do %>
+class CreateSnippets < ActiveRecord::Migration
+  def self.up
+    create_table :snippets do |t|
+      t.string :title
+      t.text :body
+      t.text :notes
+      t.string :language
+      t.integer :user_id, :null => false
+      t.integer :karma, :default => 0
+
+      t.timestamps
+    end
+  end
+
+  def self.down
+    drop_table :snippets
+  end
+end
+<% end %>
+
+<p>
+  Looks good.  I also set the snippet_id to not null in the refactoring
+  model, and the karma to default to 0.  You can do that too, or not.
+</p>
+
+<p>
+  Now we have a couple of nice models for this, and a simple scaffolding
+  to create and edit each of them.  Open up config/routes.rb, and you'll
+  see "resources" lines for each of them.  You'll want to change the
+  sequential lines into a very simple nested block:
+</p>
+
+<% harsh :format => :ruby_on_rails, :lines => true do %>
+  resources :snippets do
+    resources :refactorings
+  end
+<% end %>
+
+<p>
+  Now refactorings will be nested inside snippets.  Not in the database,
+  of course, but the URLs will be written that way.  Let's have a look.
+  Run your app by typing "rails server" in your app's directory.  Open
+  a web browser to "http://localhost:3000/snippets".
+</p>
+
+<p>
+  Looks great, doesn't it?  No?  You have an error, instead?  One like
+  this?
+</p>
+
+<img class="screenshot" src="/images/refactor_no_migrate.png" alt="An error!" />
+
+<p>
+  Guess we need to actually <i>run</i> those migrations.  Let's do that.
+</p>
+
+<% harsh :format => shell, :lines => true do %>
+angelbob@dell-desktop:~/src/rails/refactor$ rake db:migrate
+(in /home/angelbob/src/rails/refactor)
+==  CreateSnippets: migrating =================================================
+-- create_table(:snippets)
+   -> 0.0019s
+==  CreateSnippets: migrated (0.0020s) ========================================
+
+==  CreateRefactorings: migrating =============================================
+-- create_table(:refactorings)
+   -> 0.0018s
+==  CreateRefactorings: migrated (0.0019s) ====================================
+<% end %>
+
+<p>
+  Now hit reload in the browser?  Better?
+</p>
+
+<img class="screenshot" src="/images/refactor_snippet_listing.png"
+     alt="a listing of snippets" />
