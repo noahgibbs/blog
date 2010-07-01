@@ -176,3 +176,179 @@ angelbob@dell-desktop:~/src/rails/refactor$ rake db:migrate
 
 <img class="screenshot" src="/images/refactor_snippet_listing.png"
      alt="a listing of snippets" />
+
+<p>
+  Excellent.  Now we can create a new snippet.  Right now there's
+  no security on anything, so don't worry about the user and login
+  stuff we did last time.
+</p>
+
+<img class="screenshot" src="/images/refactor_edit_snippet.png"
+     alt="editing a new snippet" />
+
+<p>
+  And now we've created it...
+</p>
+
+<img class="screenshot" src="/images/refactor_snippet_created.png"
+     alt="created a new snippet" />
+
+<p>
+  We're now viewing the new snippet.  Look at the URL:
+  "http://localhost:3000/snippets/1".  Go ahead and change
+  that to
+  "http://localhost:3000/snippets/1/refactorings".  Got an
+  error like this?
+</p>
+
+<img class="screenshot" src="/images/refactor_error_refactorings.png"
+     alt="no such method error" />
+
+<p>
+  Now we'll see what we need to do to make nested resources work.
+  First off, we can't just use a "new_refactoring_path" like
+  the scaffold tried to do.  We have to specify a snippet as
+  well, since that's part of it.  And that means we'll want to get
+  the snippet also, so let's make that happen.
+</p>
+
+<p>
+  When we created the refactoring model, we gave it a snippet_id.
+  Now we'll open app/models/refactoring.rb and use that and some
+  other things:
+</p>
+
+<% harsh :format => :ruby_on_rails, :lines => true do %>
+class Refactoring < ActiveRecord::Base
+  belongs_to :snippet
+  belongs_to :user
+
+  validates_presence_of :snippet_id
+end
+<% end %>
+
+<p>
+  And we should modify Snippet as well:
+</p>
+
+<% harsh :format => :ruby_on_rails, :lines => true do %>
+class Snippet < ActiveRecord::Base
+  has_many :refactors
+  belongs_to :user
+
+  validates_presence_of :user_id
+end
+<% end %>
+
+<p>
+  By making refactoring belong to snippet, we can say
+  refactoring.snippet to get the snippet for a particular refactoring.
+  And then snippet has many refactorings, so we can say
+  snippet.refactorings to get a list of the refactorings of that
+  snippet.  And just as we pair up "refactoring belongs_to snippet"
+  with "snippet has_many refactorings", we should open up the
+  user model (remember it from last time?)...  And we'll add some
+  validations while we're in there, just so the user doesn't
+  type utter nonsense for the email address or the username.
+</p>
+
+<% harsh :format => :ruby_on_rails, :lines => true do %>
+class User < ActiveRecord::Base
+  has_many :snippets
+  has_many :refactors
+
+  # Include default devise modules. Others available are:
+  # :token_authenticatable
+  devise :database_authenticatable, :registerable,
+         :recoverable, :rememberable, :trackable, :validatable,
+         :confirmable, :lockable, :timeoutable
+
+  # Setup accessible (or protected) attributes for your model
+  attr_accessible :email, :password, :password_confirmation, :username
+
+  validates_uniqueness_of :email
+  validates_uniqueness_of :username
+  validates_format_of :email, :with => /\A[^@\s]+@[^@\s]+\Z/
+  validates_format_of :username, :with => /^([a-z0-9_-]|\s)+$/i
+  validates_length_of :username, :within => 2..20
+end
+<% end %>
+
+<p>
+  Good stuff.  But we still can't just load those views.  We need
+  to change them to use the correct routes.  Let's start with
+  app/views/refactorings/index.html.erb.
+</p>
+
+<% harsh :format => :ruby_on_rails, :lines => true do %>
+    <td><%%= link_to 'Show', refactoring %></td>
+    <td><%%= link_to 'Edit', edit_refactoring_path(refactoring) %></td>
+    <td><%%= link_to 'Destroy', refactoring, :confirm => 'Are you sure?', :method => :delete %></td>
+  </tr>
+<%% end %>
+</table>
+
+<br />
+
+<%%= link_to 'New Refactoring', new_refactoring_path %>
+<% end %>
+
+<p>
+  In the parts above, from the end of index.html.erb, you'll need to
+  change just using the refactoring to providing a good link for it.
+  You'll also need to change the refactoring paths to snippet_refactoring
+  paths.  After doing that, you'll get the following changes:
+</p>
+
+<% harsh :format => :ruby_on_rails, :lines => true do %>
+    <td><%%= link_to 'Show', snippet_refactoring_path(@snippet, refactoring) %></td>
+    <td><%%= link_to 'Edit', edit_snippet_refactoring_path(@snippet, refactoring) %></td>
+    <td><%%= link_to 'Destroy', snippet_refactoring_path(@snippet, refactoring), :confirm => 'Are you sure?', :method => :delete %></td>
+  </tr>
+<%% end %>
+</table>
+
+<br />
+
+<%%= link_to 'New Refactoring', new_snippet_refactoring_path(@snippet) %>
+<% end %>
+
+<p>
+  That works, right?  No?  You got an error that looks suspiciously like
+  we never set @snippet?  Oh.  That's no good.  I guess we didn't.  So
+  open up the refactorings_controller, and we'll fix that.
+</p>
+
+<p>
+  Go ahead and add the line "before_filter :capture_snippet" up at the
+  top.  Now we just need to write that function:
+</p>
+
+<% harsh :format => :ruby_on_rails, :lines => true do %>
+  def capture_snippet
+    @snippet = Snippet.find(params[:snippet_id]) if params[:snippet_id]
+  end
+<% end %>
+
+<p>
+  Now hit reload in your browser and hey presto, you've got a nice
+  little listing of (no) refactorings for this snippet.  You'll need
+  to fix the views for the other actions in the same way, but you're
+  well on your way.  The remaining non-obvious thing you'll need to do
+  is in the form partial for refactorings
+  (app/views/refactorings/_form.html.erb).  Notice the line that
+  says "form_for(@refactoring)"?  That's not going to work with
+  a nested resource.  Luckily, we can just change it to
+  "form_for([@refactoring.snippet, @refactoring])" and Rails will
+  figure out how to turn it into a URL.  So do that, and then try
+  creating a new refactor of the snippet.
+</p>
+
+<p>
+  You changed all the paths in new.html and show.html to use
+  the snippet_refactoring stuff, yeah?  You can get rid of those links
+  or fix them, but you have to do something if you don't want them to
+  cause errors.  You can see how I patched them up in the
+  <a href="http://github.com/noahgibbs/refactor_it_tutorial">GitHub
+  repository</a> if you need help.
+</p>
