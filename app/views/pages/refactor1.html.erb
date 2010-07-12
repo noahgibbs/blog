@@ -4,23 +4,37 @@
 
 <h1> Building Refactor It, a Rails3 App, in Steps </h1>
 
+<p>
+  In this series, I build a simple Rails 3 app.  You
+  can follow along, or just read what you need.  There's
+  a <a href="http://github.com/noahgibbs/refactor_it_tutorial">GitHub
+  repository for this series</a>, with tags for the different parts.
+</p>
+
+<ul>
+  <li> Part One:  From Nothing to Logging In </li>
+  <li> <a href="refactor2">Part Two: Nested Resources </a> </li>
+</ul>
+
 <h2> Part One: From Nothing to Logging In </h2>
 
 <p>
-  I've done the very basics for Rails3 already.  That is, I've run
+  If you haven't already, run
   <span class="cmdline">sudo gem install rails --pre</span> to
-  get it installed.
+  get Rails 3 installed (note: after it's released, you can
+  skip the &quot;--pre&quot;).  I also assume you have a copy
+  of git (on Debian or Ubuntu: <tt>sudo apt-get install git-core</tt>).
 </p>
 
 <p>
   In this series, I'm going to create a very simple social application
-  that lets you post a code snippet to refactor, and lets everybody
-  suggest different refactors of that snippet.  Rails turns out to
-  be a very good, very simple platform for that.
+  that lets you post a code snippet to your web app and anybody can
+  suggest different refactorings of that snippet.  That's the kind
+  of app Rails is really good for.
 </p>
 
 <p>
-  First, I create a Rails 3 app:
+  First I create a new, empty Rails 3 app:
 </p>
 
 <% harsh :format => shell, :lines => true do %>
@@ -35,8 +49,8 @@ angelbob@dell-desktop:~/src/rails$ rails new refactor
 <% end %>
 
 <p>
-  That's a lot of stuff.  That's a good thing, it turns out.  For
-  instance, that means it's already set up for git:
+  Rails just created a lot of stuff.  That's a good thing, it turns out.
+  For instance, that means it's already set up for git.  Let's do that:
 </p>
 
 <% harsh :format => shell, :lines => true do %>
@@ -60,17 +74,17 @@ angelbob@dell-desktop:~/src/rails/refactor$
 <% end %>
 
 <p>
-  We don't have to do anything remote with git yet.  We can just make
-  a local repository for tracking.  I'm also setting up
+  We don't have to connect git to anything outside your computer.  We can
+  just keep this local repository for tracking.  I also set up
   a <a href="http://github.com/noahgibbs/refactor_it_tutorial">GitHub
-  repository for this</a>, but that's just so that you can see my
-  progress.
+  repository for this series</a>, but that's just so that you can see my
+  progress and verify any file that I don't explain well :-)
 </p>
 
 <p>
-  Eventually, we're going to want to have users for our project, and
+  We'll want users of our app to log in when submitting code.
   I think <a href="http://github.com/plataformatec/devise">devise</a>
-  is exactly the solution to use.
+  is exactly the solution to use for login here.  So let's set it up.
 </p>
 
 <% harsh :format => shell, :lines => true do %>
@@ -89,7 +103,7 @@ Installing RDoc documentation for devise-1.1.rc2...
 <% end %>
 
 <p>
-  Awesome!  What next?  Right, I need to do some devise configuration.
+  Awesome!  Next, let's do some devise configuration.
 </p>
 
 <% harsh :format => shell, :lines => true do %>
@@ -98,8 +112,9 @@ Could not find generator devise:install.
 <% end %>
 
 <p>
-  Huh?  Oh, wait, can't see devise.  This is Rails 3, so any gem we want
-  to use needs to be declared to the Bundler.  So I'll edit the Gemfile:
+  Huh?  Oh, wait, we can't see devise yet.  This is Rails 3, so any gem
+  we want to use needs to be declared to the Bundler.  So I'll edit the
+  Gemfile:
 </p>
 
 <% harsh :format => :ruby, :lines => true do %>
@@ -138,8 +153,8 @@ gem 'devise', '1.1.rc2'
 
 <p>
   If you look closely, you'll see that I added a line for devise in there.
-  I'm using the prerelease 1.1.rc2, though you can use whatever you just
-  installed.  Now, let's try again:
+  I'm using the prerelease 1.1.rc2, though you can use whatever version
+  you just installed.  Now, let's try again:
 </p>
 
 <% harsh :format => shell, :lines => true do %>
@@ -175,7 +190,7 @@ Some setup you must do manually if you haven't yet:
 <% end %>
 
 <p>
-  Yay!  Devise has given me some good advice, and I should take it.
+  Devise has just given us some good advice. We should take it.
   Let's create the new root controller first:
 </p>
 
@@ -197,21 +212,23 @@ rm 'public/index.html'
 <% end %>
 
 <p>
-  Some day I should join the real world and use rspec or some other
-  real test framework, but for now, Test::Unit is as good for a tutorial
-  as anything else.  But that reminds me, Rails 3 lets me customize all
-  kinds of good stuff.  I should add jQuery after I've finished getting
-  devise working-ish.
+  For now, we'll ignore the test stuff rather than installing a real
+  test framework and using it.  The BDD people will tell you that this
+  makes me a bad person.  Fair enough.  You're welcome to do it however
+  you like at home, but I'm going to show you how to set up devise
+  next ;-)
 </p>
 
 <p>
-  I also took devise's advice and added the ActionMailer configuration
-  option to config/environments/development.html.  I'll use something
-  different in production because I'll actually want to send email and
-  I'll have an actual hostname.  And I added a div with the id
-  "flash_container" to my app/views/layouts/application.html file with
-  the two lines devise told me to.  You can find this stuff in the
-  GitHub repo if you're curious about the details, of course.
+  Next, take devise's advice and added the ActionMailer configuration
+  option to config/environments/development.html.  I also added a div
+  with the id "flash_container" to my
+  app/views/layouts/application.html file with the two lines devise
+  told me to.  You should do the same.  If you have any trouble,
+  check <a href="http://github.com/noahgibbs/refactor_it_tutorial">the
+  GitHub repository</a> for what those files look like.  You may want
+  to look at the tag "one", for the ways all files look in this part,
+  not how they look after every part I've written.
 </p>
 
 <p>
@@ -236,7 +253,7 @@ angelbob@dell-desktop:~/src/rails/refactor$ rails generate devise User
 <p>
   Devise uses Rails engines and other stuff to add a bunch of fun UI
   to your app.  That's why it added a route, for instance.  So now we
-  basically have the ability to create users, log in and out and so
+  have the ability to create users, log in and out and so
   on.  At least, we will once we run the migration:
 </p>
 
@@ -272,21 +289,22 @@ end
   Each of those lines is a thing you can potentially do with devise
   users.  "Confirmable", for instance, means that you can have
   devise send email to confirm the user, and require clicking on a
-  link to verify.  I'll uncomment that.  "Lockable" is to lock
-  somebody out for, for instance, failing to log in too many times.
+  link to verify.  "Lockable" is to lock
+  somebody out for giving the wrong password too many times.
   Token_authenticatable is to let you log in with a token rather than
-  using the regular database-and-site route.
+  using the regular database-and-input-form web-based method.
 </p>
 
 <p>
   If you uncomment
-  everything, you can just configure it in the model (but your
-  users table is slightly larger than needed).  I'll do that.  Also,
+  everything, you can just configure it in the model, but your
+  users table is slightly larger than needed.  I'll do that in case I
+  want to use any of these things later.  Also,
   I'll include both indices.  Users get looked up a lot and they're
   added rarely, so you can index them to Chattanooga and back without
   it being a big problem.  And I want a "username" field, so I'm
   putting in "t.string :username, :limit => 50", because I'm like
-  that.  I don't like logging in with an email address particularly.
+  that.  I don't like logging in with an email address.
 </p>
 
 <p>
@@ -313,19 +331,25 @@ end
   lockable lets you lock them out configurably, and timeoutable
   logs them out after a while.  All this stuff is remarkably poorly
   documented, and it's kinda scattered in the source code for devise.
-  You can find something about it in devise's initializer
-  (config/initializers/devise.rb).  You should go look at it in any
-  case.
+  You can find something about some of them in devise's initializer
+  (config/initializers/devise.rb).  Luckily, they all have pretty
+  intuitive names, and the code to devise is pretty readable.
 </p>
 
 <p>
-  I'm just uncommenting everything except :token_authenticatable,
-  because I want login timeouts, login lockouts and email confirmation.
-  You can pick a different set of stuff if you like.
+  I'm just uncommenting everything except :token_authenticatable and
+  :confirmable,
+  because I like login timeouts and login lockouts.
+  You can pick a different set of stuff if you like.  <b>Do NOT
+  uncomment :confirmable</b> unless you're comfortable picking through the
+  Rails logfile.  Remember that ActionMailer doesn't work right until
+  you configure it, and "confirmable" means you have to get the email
+  and click a link before you can use your account.
 </p>
 
 <p>
-  The initializer will let you change the "from" email address for
+  The initializer (config/initializers/devise.rb) will let you
+  change the "from" email address for
   confirmation emails (if you have them), the timeout for logins,
   the number of unsuccessful login attempts and many other things.
   I like :username to be the authentication key, for instance.
@@ -334,7 +358,7 @@ end
 </p>
 
 <p>
-  Okay.  You'll want to run the rails server to test stuff with.
+  You'll want to run the rails server to test stuff with.
   In Rails 3, that means running "rails server" from the rails
   app directory.  Give it a try.  Then, open a web browser and
   point it at "http://localhost:3000".  You'll probably see
@@ -366,14 +390,27 @@ Find me in app/views/welcome/index.html.erb
   Now reload, and hit "sign in" or "register".  You should
   see a page like the one below to let you
   log in or create an account.  It's being served through the
-  devise gem, and you can customize it later, if you want.
+  devise gem so you can customize it later if you want.
 </p>
 
 <img class="screenshot" src="/images/refactor_signin.png" alt="screenshot" />
 
 <p>
-  Creating an account is good.  Try that.  Notice that you can't enter
-  a username yet.  And it's unlikely that Rails can get the email
+  Creating an account is good.  Do that.  Notice that you can't enter
+  a username yet, but supply an email address (don't worry -- you won't
+  sell your address to anybody ;-)
+</p>
+
+<p>
+  That's not a bad amount of work to get a full user signup system
+  for your app!
+</p>
+
+<h2> If You Ignored My Advice... </h2>
+
+<p>
+  Let's say you ignored what I said up above and turned on "confirmable"
+  in the User model.  It's unlikely that Rails can get  email
   sent, so you should go to the console where you're running the
   server.  You'll see something like this in the log:
 </p>
@@ -412,11 +449,5 @@ Completed   in 376ms
 <p>
   If you turned on confirmations, you'll note that there's a
   confirmation URL you'll need to go to.  Copy it out of the log, and
-  go there in your browser.  If you didn't turn on confirmations, you
-  can probably just log in now.
-</p>
-
-<p>
-  That's not a bad amount of work to get a full user signup system
-  for your app!
+  go there in your browser, which will activate your account.
 </p>

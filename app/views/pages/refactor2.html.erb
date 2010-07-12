@@ -4,22 +4,30 @@
 
 <h1> Building Refactor It, a Rails3 App, in Steps </h1>
 
+<p>
+  In this series, I build a simple Rails 3 app.  You
+  can follow along, or just read what you need.  There's
+  a <a href="http://github.com/noahgibbs/refactor_it_tutorial">GitHub
+  repository for this series</a>, with tags for the different parts.
+  <a href="refactor1">Part One</a> has a table of contents.
+</p>
+
 <h2> Part Two: Nested Resources </h2>
 
 <p>
-  The idea of "Refactor It", such as it is, is that users can
+  The idea of "Refactor It" is that users can
   submit a snippet, and other users can suggest refactorings.
 </p>
 
 <p>
   That suggests a simple data architecture:  snippet objects
-  contain refactoring objects, they're represented by simple
+  contain refactoring objects, and they're all represented by simple
   ActiveRecord models.  So let's do that.
 </p>
 
 <p>
-  It'll be quicker to build these things with scaffolds, so
-  let's do that.  Rails 3 generators use the "rails generate"
+  It'll be quicker to build these things with scaffolds.  Rails 3
+  generators use the "rails generate"
   command, which has nice help:
 </p>
 
@@ -96,7 +104,7 @@ angelbob@dell-desktop:~/src/rails/refactor$ rails generate scaffold refactoring 
 <p>
   That's fine -- let's look at the migrations that Rails set up for
   us.  Here's the one for snippets, after I've added a couple of
-  quick options:
+  options on data fields:
 </p>
 
 <% harsh :format => :ruby_on_rails, :lines => true do %>
@@ -122,7 +130,7 @@ end
 
 <p>
   Looks good.  I also set the snippet_id to not null in the refactoring
-  model, and the karma to default to 0.  You can do that too, or not.
+  model, and the karma to default to 0.  You can do that too.
 </p>
 
 <p>
@@ -153,7 +161,7 @@ end
 <img class="screenshot" src="/images/refactor_no_migrate.png" alt="An error!" />
 
 <p>
-  Guess we need to actually <i>run</i> those migrations.  Let's do that.
+  I guess we need to actually <i>run</i> those migrations.  Let's do that.
 </p>
 
 <% harsh :format => shell, :lines => true do %>
@@ -171,7 +179,7 @@ angelbob@dell-desktop:~/src/rails/refactor$ rake db:migrate
 <% end %>
 
 <p>
-  Now hit reload in the browser?  Better?
+  Now hit reload in the browser. Better?
 </p>
 
 <img class="screenshot" src="/images/refactor_snippet_listing.png"
@@ -208,14 +216,15 @@ angelbob@dell-desktop:~/src/rails/refactor$ rake db:migrate
   Now we'll see what we need to do to make nested resources work.
   First off, we can't just use a "new_refactoring_path" like
   the scaffold tried to do.  We have to specify a snippet as
-  well, since that's part of it.  And that means we'll want to get
+  well, since that's required to get the path to a refactoring.  And
+  that means we'll want to look up
   the snippet also, so let's make that happen.
 </p>
 
 <p>
   When we created the refactoring model, we gave it a snippet_id.
-  Now we'll open app/models/refactoring.rb and use that and some
-  other things:
+  Now we'll open app/models/refactoring.rb and add some associations,
+  including for the snippet:
 </p>
 
 <% harsh :format => :ruby_on_rails, :lines => true do %>
@@ -223,7 +232,7 @@ class Refactoring < ActiveRecord::Base
   belongs_to :snippet
   belongs_to :user
 
-  validates_presence_of :snippet_id
+  validates :snippet_id, :presence => true
 end
 <% end %>
 
@@ -236,7 +245,7 @@ class Snippet < ActiveRecord::Base
   has_many :refactors
   belongs_to :user
 
-  validates_presence_of :user_id
+  validates :user_id, :presence => true
 end
 <% end %>
 
@@ -250,6 +259,13 @@ end
   user model (remember it from last time?)...  And we'll add some
   validations while we're in there, just so the user doesn't
   type utter nonsense for the email address or the username.
+</p>
+
+<p>
+  (Note: this tutorial originally used old-style
+  &quot;validates_presence_of&quot;-type validators.  Now we're using
+  the new style with &quot;validates :field, :presence => true&quot;,
+  et cetera.  If you see the old ones in the Git Repo, that's why)
 </p>
 
 <% harsh :format => :ruby_on_rails, :lines => true do %>
@@ -266,11 +282,9 @@ class User < ActiveRecord::Base
   # Setup accessible (or protected) attributes for your model
   attr_accessible :email, :password, :password_confirmation, :username
 
-  validates_uniqueness_of :email
-  validates_uniqueness_of :username
-  validates_format_of :email, :with => /\A[^@\s]+@[^@\s]+\Z/
-  validates_format_of :username, :with => /^([a-z0-9_-]|\s)+$/i
-  validates_length_of :username, :within => 2..20
+  validates :email, :uniqueness => true, :format => /\A[^@\s]+@[^@\s]+\Z/
+  validates :username, :uniqueness => true, :format => /^([a-z0-9_-]|\s)+$/i,
+    :length => 2..20
 end
 <% end %>
 
