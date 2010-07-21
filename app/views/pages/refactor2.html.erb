@@ -348,14 +348,26 @@ end
   Now hit reload in your browser and hey presto, you've got a nice
   little listing of (no) refactorings for this snippet.  You'll need
   to fix the views for the other actions in the same way, but you're
-  well on your way.  The remaining non-obvious thing you'll need to do
+  well on your way.
+</p>
+
+<p>
+  In the refactorings controller, have a look at the "new" action.
+  That's going to need to change.  Specifically, change the line
+  "@refactoring = Refactoring.new" into
+  "@refactoring = @snippet ? @snippet.refactorings.build : Refactoring.new".
+  That will attach your new refactoring to the snippet you gave in
+  the URL, assuming you did.
+</p>
+
+<p>
+  The remaining non-obvious thing you'll need to do
   is in the form partial for refactorings
   (app/views/refactorings/_form.html.erb).  Notice the line that
   says "form_for(@refactoring)"?  That's not going to work with
-  a nested resource.  Luckily, we can just change it to
-  "form_for([@refactoring.snippet, @refactoring])" and Rails will
-  figure out how to turn it into a URL.  So do that, and then try
-  creating a new refactor of the snippet.
+  a nested resource.  We need to change that to
+  "form_for([:snippet, @refactoring])" for Rails to work its magic.  So
+  try that.
 </p>
 
 <p>
