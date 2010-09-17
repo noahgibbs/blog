@@ -134,4 +134,8 @@ class PostsController < ApplicationController
       tag.destroy if tag.taggings.count == 0
     end
   end
+
+  def error
+    raise "Yup, that's an error!"
+  end
 end
