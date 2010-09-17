@@ -26,6 +26,7 @@ Rails::Initializer.run do |config|
   # config.gem "sqlite3-ruby", :lib => "sqlite3"
   # config.gem "aws-s3", :lib => "aws/s3"
   config.gem "has_many_polymorphs"
+  config.gem "hoptoad_notifier"
   #config.gem "mislav-will_paginate", :version => "~> 2.3.8",
   #             :lib => "will_paginate", :source => 'http://gems.github.com'
 
