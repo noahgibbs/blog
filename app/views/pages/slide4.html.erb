@@ -1,0 +1,33 @@
+<div class="floatright"><a href="slide5">Next</a></div>
+
+<h1> Supplanting Java </h1>
+
+<p>
+  You can write Java interfaces and import them into Ruby, then use your
+  Ruby objects from Java...
+</p>
+
+<% harsh :format => :ruby, :lines => true do %>
+class NewTableNames < ActiveRecord::Base
+  table_name "legacyTableNames"
+  sequence_name "manSequencesSuck"
+
+  # Include the Java interface
+  include com.enormicom.models.TableNameInterface
+  include com.enormicom.models.OtherJavaClass
+
+  # Then implement it
+  def getPluralName
+    self.name.pluralize
+  end
+
+  def doSomething
+    table_name = NewTableName.new "ThisName"
+    # Now, pass this object to Java like a Java object
+    OtherJavaClass.some_java_function("thing", table_name)
+  end
+end
+
+<% end %>
+
+<div class="bigspacer"></div>

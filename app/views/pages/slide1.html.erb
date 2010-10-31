@@ -1,0 +1,28 @@
+<div class="floatright"><a href="slide2">Next</a></div>
+
+<h1> JRuby:  Calling Java from Ruby </h1>
+
+<h2> Method Names </h2>
+
+<ul>
+  <li> obj.camelCaseName =&gt; obj.camel_case_name </li>
+  <li> obj.isCamelCase =&gt; obj.camel_case? </li>
+  <li> obj.getCamel =&gt; obj.camel </li>
+</ul>
+
+<p>
+  And lots more...
+</p>
+
+<p>
+  Just write it like Ruby, after an import:
+</p>
+
+<% harsh :format => :ruby, :lines => true do %>
+import com.onsitemanager.thing.stuff
+
+s = Stuff.new "Hello"
+puts s.camel_case?
+<% end %>
+
+<div class="bigspacer"></div>

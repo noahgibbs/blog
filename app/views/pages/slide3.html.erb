@@ -1,0 +1,38 @@
+<div class="floatright"><a href="slide4">Next</a></div>
+
+<h1> Rails with Java Models and ActiveRecord Wrappers </h1>
+
+<p>
+  Your Rails controllers and views stay the same.  Use the Java objects
+  from your models:
+</p>
+
+<% harsh :format => :ruby, :lines => true do %>
+class WrappedLegacyTableNames < ActiveRecord::Base
+  # With the table and sequence names, you get all the usual ActiveRecord
+  # stuff...  But no Java functions, logic or validations.
+  table_name "legacyTableNames"
+  sequence_name "manSequencesSuck"
+  import com.enormicom.models.LegacyTableName
+
+  attr :instance
+
+  def initialize(instance)
+    @instance = instance
+  end
+
+  # You can wrap Java functions individually
+  def my_fun_finder(*args)
+    java_list = LegacyTableName.fun_finder(*args)
+    # Call the Java finder, wrap and return
+    return java_list.map {|obj| WrappedLegacyTableNames.new(obj)}
+  end
+
+  # Be careful -- if you just call the Java finders directly, you
+  # get unwrapped Java objects, not Ruby objects!  And your Ruby
+  # objects won't directly enforce your Java validations unless
+  # you use something like a before_save callback.
+end
+<% end %>
+
+<div class="bigspacer"></div>
