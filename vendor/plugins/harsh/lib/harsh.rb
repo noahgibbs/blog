@@ -63,7 +63,7 @@ module Harsh
   
   private
   
-  DEFAULT_OPTIONS = {:format => "ruby", :theme => "twilight", :lines => false}
+  DEFAULT_OPTIONS = {:format => "ruby", :theme => "eiffel", :lines => false}
   
   def self.parse_args(args)
     return DEFAULT_OPTIONS if args.empty?
