@@ -64,6 +64,14 @@ img.screenshot {
 
 }
 
+.floatright {
+  float: right;
+}
+
+.bigspacer {
+  min-height: 800px;
+}
+
 #leftnavbar {
   float: left;
   background-color: #B0B0FF;
