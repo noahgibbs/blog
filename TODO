@@ -1,7 +1,4 @@
 Function to cut posts short after a certain length and add a "Read More" link.
 
-Read pages views directory to generate empty controller actions for any
-  that aren't predefined.
-
 Javascript to prompt with "are you sure?" when using a tag that doesn't
   already exist
