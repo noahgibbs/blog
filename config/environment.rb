@@ -27,8 +27,9 @@ Rails::Initializer.run do |config|
   # config.gem "aws-s3", :lib => "aws/s3"
   config.gem "has_many_polymorphs"
   config.gem "hoptoad_notifier"
-  #config.gem "mislav-will_paginate", :version => "~> 2.3.8",
+  #config.gem "mislav-will_paginate", :version => "~> 2.3.11",
   #             :lib => "will_paginate", :source => 'http://gems.github.com'
+  config.gem 'will_paginate', :version => '~> 2.3.11', :source => 'http://gemcutter.org'
 
   # Only load the plugins named here, in the order given (default is alphabetical).
   # :all can be used as a placeholder for all plugins not explicitly named
@@ -50,7 +51,6 @@ Rails::Initializer.run do |config|
   # config.i18n.default_locale = :de
 end
 require 'tagging_extensions'
-require 'will_paginate'
 
 # This is used to keep PostGRES and other picky databases happy with the
 # long-url-name hack
